@@ -34,7 +34,7 @@ export default function RequestDetail() {
       try {
         const [requestRes, tasksRes] = await Promise.all([
           fetch(`/api/requests/${requestId}`),
-          fetch(`/api/tasks/${requestId}`),
+          fetch(`/api/tasks/request/${requestId}`),
         ]);
 
         if (requestRes.ok) {
@@ -74,7 +74,7 @@ export default function RequestDetail() {
         // Refresh data
         const [requestRes, tasksRes] = await Promise.all([
           fetch(`/api/requests/${requestId}`),
-          fetch(`/api/tasks/${requestId}`),
+          fetch(`/api/tasks/request/${requestId}`),
         ]);
 
         if (requestRes.ok) {

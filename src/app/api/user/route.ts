@@ -1,25 +1,17 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { getUserById, updateUser } from "@/lib/data";
 
 // GET /api/user - Get current user (assuming single user for now)
 export async function GET() {
   try {
-    const user = await db.select().from(users).where(eq(users.id, 1)).limit(1);
+    const user = await getUserById(1);
 
-    if (user.length === 0) {
-      // Create default user if none exists
-      const newUser = await db.insert(users).values({
-        name: "Player",
-        xp: 0,
-        level: 1,
-      }).returning();
-
-      return NextResponse.json(newUser[0]);
+    if (!user) {
+      // This shouldn't happen since we have a default user in users.json
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json(user[0]);
+    return NextResponse.json(user);
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
   }
@@ -30,13 +22,15 @@ export async function PUT(request: Request) {
   try {
     const { xp, level } = await request.json();
 
-    const updatedUser = await db
-      .update(users)
-      .set({ xp, level })
-      .where(eq(users.id, 1))
-      .returning();
+    const currentUser = await getUserById(1);
+    if (!currentUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
-    return NextResponse.json(updatedUser[0]);
+    const updatedUser = { ...currentUser, xp, level };
+    await updateUser(updatedUser);
+
+    return NextResponse.json(updatedUser);
   } catch (error) {
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
   }

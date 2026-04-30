@@ -14,7 +14,7 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] ESLint configuration
 - [x] Memory bank documentation
 - [x] Recipe system for common features
-- [x] Database support with Drizzle ORM and SQLite
+- [x] File-based data storage using JSON files
 - [x] Gamified task management mobile app with XP system, levels, and rewards
 
 ## Current Structure
@@ -88,3 +88,4 @@ export async function GET() {
 |------|---------|
 | Initial | Template created with base setup |
 | 2026-04-30 | Built gamified task management mobile app with database, XP system, and mobile UI |
+| 2026-04-30 | Converted from database to file-based storage using JSON files |
