@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { DarkModeProvider } from "@/components/DarkModeProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,9 +33,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 dark:bg-gray-900`}
       >
-        <MobileLayout>{children}</MobileLayout>
+        <DarkModeProvider>
+          <MobileLayout>{children}</MobileLayout>
+        </DarkModeProvider>
       </body>
     </html>
   );

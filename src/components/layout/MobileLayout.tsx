@@ -18,14 +18,14 @@ export function MobileLayout({ children }: MobileLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       {/* Main content */}
       <main className="flex-1 pb-16">
         {children}
       </main>
 
       {/* Bottom navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-2">
         <div className="flex justify-around">
           {navItems.map((item) => (
             <Link
@@ -33,8 +33,8 @@ export function MobileLayout({ children }: MobileLayoutProps) {
               href={item.href}
               className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
                 pathname === item.href
-                  ? "text-blue-600 bg-blue-50"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
               }`}
             >
               <span className="text-lg">{item.icon}</span>

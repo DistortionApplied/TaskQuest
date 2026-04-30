@@ -39,7 +39,7 @@ export default function Home() {
     return (
       <div className="p-4">
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
         </div>
       </div>
     );
@@ -48,15 +48,15 @@ export default function Home() {
   return (
     <div className="p-4">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">My Requests</h1>
-        <p className="text-gray-600">Complete tasks to unlock your rewards</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">My Requests</h1>
+        <p className="text-gray-600 dark:text-gray-400">Complete tasks to unlock your rewards</p>
       </div>
 
       {requests.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">🎯</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">No requests yet</h2>
-          <p className="text-gray-600">Create your first request to start earning rewards!</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No requests yet</h2>
+          <p className="text-gray-600 dark:text-gray-400">Create your first request to start earning rewards!</p>
         </div>
       ) : (
         <div className="space-y-4">

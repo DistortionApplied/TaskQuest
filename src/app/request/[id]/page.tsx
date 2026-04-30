@@ -109,7 +109,7 @@ export default function RequestDetail() {
     return (
       <div className="p-4">
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
         </div>
       </div>
     );
@@ -118,7 +118,7 @@ export default function RequestDetail() {
   if (!request) {
     return (
       <div className="p-4">
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
           Request not found
         </div>
       </div>
@@ -143,17 +143,17 @@ export default function RequestDetail() {
         <div className="flex items-center gap-3 mb-2">
           <span className="text-3xl">{getItemIcon(request.itemType)}</span>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{request.itemName}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{request.itemName}</h1>
             {request.description && (
-              <p className="text-gray-600 mt-1">{request.description}</p>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">{request.description}</p>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-gray-600">
+        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
           <span>Tasks: {completedTasks}/{totalTasks}</span>
           {request.isCompleted && (
-            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+            <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">
               Completed
             </span>
           )}
@@ -161,10 +161,10 @@ export default function RequestDetail() {
       </div>
 
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Tasks</h2>
 
         {tasks.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             No tasks for this request
           </div>
         ) : (
@@ -183,13 +183,13 @@ export default function RequestDetail() {
       </div>
 
       {request.isCompleted && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
           <div className="text-center">
             <div className="text-4xl mb-2">🎉</div>
-            <h3 className="text-lg font-semibold text-green-800 mb-1">
+            <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-1">
               Congratulations!
             </h3>
-            <p className="text-green-700">
+            <p className="text-green-700 dark:text-green-300">
               You&apos;ve completed all tasks! Enjoy your {request.itemName.toLowerCase()}.
             </p>
           </div>
