@@ -139,13 +139,23 @@ export function updateRequest(request: Request): void {
 }
 
 export function deleteRequest(id: number): void {
+  console.log('deleteRequest called with id:', id);
+
   // Delete the request
+  const requestsBefore = getRequests();
+  console.log('Requests before deletion:', requestsBefore.length);
+
   const requests = getRequests().filter(r => r.id !== id);
   saveToStorage(STORAGE_KEYS.requests, requests);
+  console.log('Requests after deletion:', requests.length);
 
   // Delete all associated tasks
+  const tasksBefore = getTasks();
+  console.log('Tasks before deletion:', tasksBefore.length);
+
   const tasks = getTasks().filter(t => t.requestId !== id);
   saveToStorage(STORAGE_KEYS.tasks, tasks);
+  console.log('Tasks after deletion:', tasks.length);
 }
 
 // Tasks
