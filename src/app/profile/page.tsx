@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { XPBar } from "@/components/XPBar";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { getUserById, getRequests } from "@/lib/clientData";
 
 interface User {
   id: number;
@@ -13,7 +14,7 @@ interface User {
 
 interface Request {
   id: number;
-  isCompleted: boolean;
+  isCompleted: number;
 }
 
 export default function Profile() {
@@ -22,30 +23,26 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [userRes, requestsRes] = await Promise.all([
-          fetch("/api/user"),
-          fetch("/api/requests"),
-        ]);
+    // Load data directly from localStorage
+    const userData = getUserById(1);
+    const requestsData = getRequests();
 
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          setUser(userData);
-        }
-
-        if (requestsRes.ok) {
-          const requestsData = await requestsRes.json();
-          setRequests(requestsData);
-        }
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      } finally {
-        setLoading(false);
-      }
+    if (userData) {
+      setUser(userData);
+    } else {
+      // Initialize default user if none exists
+      const defaultUser = {
+        id: 1,
+        name: "Player",
+        xp: 0,
+        level: 1,
+        createdAt: new Date().toISOString(),
+      };
+      setUser(defaultUser);
     }
 
-    fetchData();
+    setRequests(requestsData);
+    setLoading(false);
   }, []);
 
   if (loading) {

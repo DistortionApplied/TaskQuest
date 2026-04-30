@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { TaskItem } from "@/components/TaskItem";
 import { Button } from "@/components/ui/Button";
+import { getRequestById, getTasksByRequestId, updateTask, updateRequest, getUserById, updateUser } from "@/lib/clientData";
 
 interface Task {
   id: number;
@@ -11,6 +12,7 @@ interface Task {
   description?: string;
   xpValue: number;
   isCompleted: number;
+  completedAt?: string;
 }
 
 interface Request {
@@ -19,6 +21,7 @@ interface Request {
   itemType: string;
   description?: string;
   isCompleted: boolean;
+  completedAt?: string;
 }
 
 export default function RequestDetail() {
@@ -30,66 +33,76 @@ export default function RequestDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [requestRes, tasksRes] = await Promise.all([
-          fetch(`/api/requests/${requestId}`),
-          fetch(`/api/tasks/request/${requestId}`),
-        ]);
+    if (!requestId) return;
 
-        if (requestRes.ok) {
-          const requestData = await requestRes.json();
-          setRequest(requestData);
-        }
+    // Load data directly from localStorage
+    const reqId = parseInt(requestId);
+    const requestData = getRequestById(reqId);
+    const tasksData = getTasksByRequestId(reqId);
 
-        if (tasksRes.ok) {
-          const tasksData = await tasksRes.json();
-          setTasks(tasksData);
-        }
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      } finally {
-        setLoading(false);
-      }
+    if (requestData) {
+      setRequest({
+        ...requestData,
+        isCompleted: Boolean(requestData.isCompleted),
+      });
     }
 
-    if (requestId) {
-      fetchData();
-    }
+    setTasks(tasksData);
+    setLoading(false);
   }, [requestId]);
 
-  const handleTaskToggle = async (taskId: number) => {
-    try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          isCompleted: !tasks.find(t => t.id === taskId)?.isCompleted,
-        }),
-      });
+  const handleTaskToggle = (taskId: number) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || !request) return;
 
-      if (response.ok) {
-        // Refresh data
-        const [requestRes, tasksRes] = await Promise.all([
-          fetch(`/api/requests/${requestId}`),
-          fetch(`/api/tasks/request/${requestId}`),
-        ]);
+    const newIsCompleted = task.isCompleted === 0 ? 1 : 0;
 
-        if (requestRes.ok) {
-          const requestData = await requestRes.json();
-          setRequest(requestData);
-        }
+    // Update task
+    const updatedTask = {
+      ...task,
+      isCompleted: newIsCompleted,
+      completedAt: newIsCompleted === 1 ? new Date().toISOString() : task.completedAt,
+    };
+    updateTask(updatedTask as any);
 
-        if (tasksRes.ok) {
-          const tasksData = await tasksRes.json();
-          setTasks(tasksData);
-        }
+    // Update request completion count
+    const allTasks = getTasksByRequestId(parseInt(requestId!));
+    const completedCount = allTasks.filter(t => t.isCompleted === 1).length;
+
+    const updatedRequest = {
+      ...request,
+      completedTasksCount: completedCount,
+      isCompleted: completedCount === allTasks.length ? 1 : 0,
+      completedAt: completedCount === allTasks.length ? new Date().toISOString() : request.completedAt,
+    };
+    updateRequest(updatedRequest as any);
+
+    // Award XP if task was completed
+    if (newIsCompleted === 1) {
+      const user = getUserById(1);
+      if (user) {
+        const currentXP = user.xp || 0;
+        const taskXP = task.xpValue || 0;
+        const newXP = currentXP + taskXP;
+        const newLevel = Math.floor(newXP / 100) + 1;
+
+        updateUser({
+          ...user,
+          xp: newXP,
+          level: newLevel,
+        });
       }
-    } catch (error) {
-      console.error("Failed to update task:", error);
     }
+
+    // Refresh local state
+    setTasks(prevTasks => prevTasks.map(t =>
+      t.id === taskId ? { ...t, isCompleted: newIsCompleted } : t
+    ));
+    setRequest(prevRequest => prevRequest ? {
+      ...prevRequest,
+      completedTasksCount: completedCount,
+      isCompleted: completedCount === allTasks.length,
+    } : null);
   };
 
   const getItemIcon = (type: string) => {

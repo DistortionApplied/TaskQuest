@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { createRequest, createTask } from "@/lib/clientData";
 
 const itemTypes = [
   { value: "cigarette", label: "Cigarette", icon: "🚬" },
@@ -49,41 +50,42 @@ export default function AddRequest() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!itemName.trim() || tasks.some(t => !t.title.trim())) {
       alert("Please fill in all required fields");
       return;
     }
 
     try {
-      const response = await fetch("/api/requests", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          itemName: itemName.trim(),
-          itemType,
-          description: description.trim() || null,
-          tasks: tasks.map(t => ({
-            title: t.title.trim(),
-            description: t.description.trim() || null,
-            xpValue: t.xpValue,
-          })),
-        }),
+      // Create request directly in localStorage
+      const newRequest = createRequest({
+        userId: 1,
+        itemName: itemName.trim(),
+        itemType,
+        description: description.trim() || undefined,
+        requiredTasksCount: tasks.length,
+        completedTasksCount: 0,
+        isCompleted: 0,
       });
 
-      if (response.ok) {
-        // Reset form
-        setItemName("");
-        setDescription("");
-        setTasks([{ id: 1, title: "", description: "", xpValue: 10 }]);
-        alert("Request created successfully!");
-        // Navigate back to home
-        window.location.href = "/";
-      } else {
-        alert("Failed to create request");
+      // Create tasks
+      for (const task of tasks) {
+        createTask({
+          requestId: newRequest.id,
+          title: task.title.trim(),
+          description: task.description.trim() || undefined,
+          xpValue: task.xpValue,
+          isCompleted: 0,
+        });
       }
+
+      // Reset form
+      setItemName("");
+      setDescription("");
+      setTasks([{ id: 1, title: "", description: "", xpValue: 10 }]);
+      alert("Request created successfully!");
+      // Navigate back to home
+      window.location.href = "/";
     } catch (error) {
       console.error("Error creating request:", error);
       alert("Failed to create request");

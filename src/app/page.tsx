@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { RequestCard } from "@/components/RequestCard";
+import { getRequests } from "@/lib/clientData";
 
-interface Request {
+interface DisplayRequest {
   id: number;
   itemName: string;
   itemType: string;
@@ -14,25 +15,24 @@ interface Request {
 }
 
 export default function Home() {
-  const [requests, setRequests] = useState<Request[]>([]);
+  const [requests, setRequests] = useState<DisplayRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchRequests() {
-      try {
-        const response = await fetch("/api/requests");
-        if (response.ok) {
-          const data = await response.json();
-          setRequests(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch requests:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
+    // Load requests directly from localStorage and convert to display format
+    const data = getRequests().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const displayData: DisplayRequest[] = data.map(req => ({
+      id: req.id,
+      itemName: req.itemName,
+      itemType: req.itemType,
+      description: req.description,
+      completedTasksCount: req.completedTasksCount,
+      requiredTasksCount: req.requiredTasksCount,
+      isCompleted: Boolean(req.isCompleted),
+    }));
 
-    fetchRequests();
+    setRequests(displayData);
+    setLoading(false);
   }, []);
 
   if (loading) {
