@@ -1,15 +1,13 @@
-import Database from "bun:sqlite";
+import Database from "better-sqlite3";
 import { readdir, readFile } from "fs/promises";
 import { resolve } from "path";
-import * as schema from "./schema";
 
-const dbPath = process.env.DB_URL?.replace("file:", "") || "./app.db";
-const db = new Database(dbPath);
+async function main() {
+  const dbPath = process.env.DB_URL?.replace("file:", "") || "./app.db";
+  const db = new Database(dbPath);
 
-// Simple migration runner for bun:sqlite
-async function runMigrations() {
   // Create migrations table if it doesn't exist
-  db.run(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS "__drizzle_migrations" (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       hash text NOT NULL UNIQUE,
@@ -24,25 +22,25 @@ async function runMigrations() {
 
   for (const file of migrationFiles) {
     const hash = file;
-    const existing = db.query(
-      "SELECT * FROM __drizzle_migrations WHERE hash = ?"
-    ).get(hash);
+    const existing = db
+      .prepare("SELECT * FROM __drizzle_migrations WHERE hash = ?")
+      .get(hash);
 
     if (!existing) {
       const sql = await readFile(resolve(migrationsDir, file), "utf-8");
-      // Split by semicolon and execute each statement
-      const statements = sql.split(";").filter(s => s.trim());
-      for (const statement of statements) {
-        if (statement.trim()) {
-          db.run(statement);
-        }
-      }
-      db.run("INSERT INTO __drizzle_migrations (hash) VALUES (?)", [hash]);
+      db.exec(sql);
+      db.prepare("INSERT INTO __drizzle_migrations (hash) VALUES (?)").run(
+        hash
+      );
       console.log(`✓ Executed migration: ${file}`);
     }
   }
 
   console.log("✓ Migrations completed successfully!");
+  db.close();
 }
 
-await runMigrations();
+main().catch(err => {
+  console.error("Migration failed:", err);
+  process.exit(1);
+});
