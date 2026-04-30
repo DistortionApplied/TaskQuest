@@ -1,17 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import { createRequest, createTask } from "@/lib/clientData";
-
-const itemTypes = [
-  { value: "cigarette", label: "Cigarette", icon: "🚬" },
-  { value: "beer", label: "Beer", icon: "🍺" },
-  { value: "computer_time", label: "Computer Time", icon: "💻" },
-  { value: "other", label: "Other", icon: "🎁" },
-];
+import { createRequest, createTask, getRewardCategories, initializeDefaultRewardCategories, RewardCategory, RewardItem } from "@/lib/clientData";
 
 interface Task {
   id: number;
@@ -22,11 +15,19 @@ interface Task {
 
 export default function AddRequest() {
   const [itemName, setItemName] = useState("");
-  const [itemType, setItemType] = useState("cigarette");
+  const [selectedItem, setSelectedItem] = useState<RewardItem | null>(null);
   const [description, setDescription] = useState("");
   const [tasks, setTasks] = useState<Task[]>([
     { id: 1, title: "", description: "", xpValue: 10 },
   ]);
+  const [categories, setCategories] = useState<RewardCategory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<RewardCategory | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<RewardCategory | null>(null);
+
+  useEffect(() => {
+    initializeDefaultRewardCategories();
+    setCategories(getRewardCategories());
+  }, []);
 
   const addTask = () => {
     const newTask: Task = {
@@ -50,8 +51,105 @@ export default function AddRequest() {
     }
   };
 
+  const handleCategorySelect = (category: RewardCategory) => {
+    setSelectedCategory(category);
+    setSelectedSubcategory(null);
+    setSelectedItem(null);
+  };
+
+  const handleSubcategorySelect = (subcategory: RewardCategory) => {
+    setSelectedSubcategory(subcategory);
+    setSelectedItem(null);
+  };
+
+  const handleItemSelect = (item: RewardItem) => {
+    setSelectedItem(item);
+  };
+
+  const renderRewardSelection = () => {
+    if (!categories.length) return null;
+
+    return (
+      <div className="space-y-4">
+        {/* Main Categories */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Category
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => handleCategorySelect(category)}
+                className={`p-3 border rounded-lg text-center transition-colors ${
+                  selectedCategory?.id === category.id
+                    ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                    : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+                }`}
+              >
+                <div className="text-2xl mb-1">{category.icon}</div>
+                <div className="text-sm">{category.name}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Subcategories */}
+        {selectedCategory?.subcategories && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {selectedCategory.name} Type
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {selectedCategory.subcategories.map((subcategory) => (
+                <button
+                  key={subcategory.id}
+                  onClick={() => handleSubcategorySelect(subcategory)}
+                  className={`p-3 border rounded-lg text-center transition-colors ${
+                    selectedSubcategory?.id === subcategory.id
+                      ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                      : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+                  }`}
+                >
+                  <div className="text-2xl mb-1">{subcategory.icon}</div>
+                  <div className="text-sm">{subcategory.name}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Items */}
+        {((selectedCategory && !selectedCategory.subcategories && selectedCategory.items) ||
+          (selectedSubcategory && selectedSubcategory.items)) && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Specific Item
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {(selectedSubcategory?.items || selectedCategory?.items || []).map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleItemSelect(item)}
+                  className={`p-3 border rounded-lg text-center transition-colors ${
+                    selectedItem?.id === item.id
+                      ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                      : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+                  }`}
+                >
+                  <div className="text-2xl mb-1">{item.icon}</div>
+                  <div className="text-sm">{item.name}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const handleSubmit = () => {
-    if (!itemName.trim() || tasks.some(t => !t.title.trim())) {
+    if (!itemName.trim() || !selectedItem || tasks.some(t => !t.title.trim())) {
       alert("Please fill in all required fields");
       return;
     }
@@ -61,7 +159,7 @@ export default function AddRequest() {
       const newRequest = createRequest({
         userId: 1,
         itemName: itemName.trim(),
-        itemType,
+        itemType: selectedItem.id,
         description: description.trim() || undefined,
         requiredTasksCount: tasks.length,
         completedTasksCount: 0,
@@ -116,27 +214,7 @@ export default function AddRequest() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Reward Type
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {itemTypes.map((type) => (
-                  <button
-                    key={type.value}
-                    onClick={() => setItemType(type.value)}
-                    className={`p-3 border rounded-lg text-center transition-colors ${
-                      itemType === type.value
-                        ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                        : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
-                    }`}
-                  >
-                    <div className="text-2xl mb-1">{type.icon}</div>
-                    <div className="text-sm">{type.label}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
+            {renderRewardSelection()}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

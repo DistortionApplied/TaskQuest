@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { TaskItem } from "@/components/TaskItem";
 import { Button } from "@/components/ui/Button";
-import { getRequestById, getTasksByRequestId, updateTask, updateRequest, getUserById, updateUser } from "@/lib/clientData";
+import { getRequestById, getTasksByRequestId, updateTask, updateRequest, getUserById, updateUser, findRewardItem } from "@/lib/clientData";
 
 interface Task {
   id: number;
@@ -106,16 +106,8 @@ export default function RequestDetail() {
   };
 
   const getItemIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "cigarette":
-        return "🚬";
-      case "beer":
-        return "🍺";
-      case "computer_time":
-        return "💻";
-      default:
-        return "🎁";
-    }
+    const rewardItem = findRewardItem(type);
+    return rewardItem ? rewardItem.icon : "🎁";
   };
 
   if (loading) {

@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/Card";
 import { useRouter } from "next/navigation";
+import { findRewardItem } from "@/lib/clientData";
 
 interface RequestCardProps {
   id: number;
@@ -26,16 +27,8 @@ export function RequestCard({
   const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
   const getItemIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "cigarette":
-        return "🚬";
-      case "beer":
-        return "🍺";
-      case "computer_time":
-        return "💻";
-      default:
-        return "🎁";
-    }
+    const rewardItem = findRewardItem(type);
+    return rewardItem ? rewardItem.icon : "🎁";
   };
 
   const handleClick = (e: React.MouseEvent) => {

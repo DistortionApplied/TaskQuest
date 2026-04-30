@@ -46,7 +46,23 @@ const STORAGE_KEYS = {
   requests: 'gamified_app_requests',
   tasks: 'gamified_app_tasks',
   rewards: 'gamified_app_rewards',
+  rewardCategories: 'gamified_app_reward_categories',
 };
+
+// Reward category types
+export interface RewardItem {
+  id: string;
+  name: string;
+  icon: string;
+}
+
+export interface RewardCategory {
+  id: string;
+  name: string;
+  icon: string;
+  subcategories?: RewardCategory[];
+  items?: RewardItem[];
+}
 
 // Generic storage functions
 function getFromStorage<T>(key: string): T[] {
@@ -68,6 +84,54 @@ function saveToStorage<T>(key: string, data: T[]): void {
     console.error(`Error saving to localStorage:`, error);
   }
 }
+
+// Default reward categories
+const DEFAULT_REWARD_CATEGORIES: RewardCategory[] = [
+  {
+    id: 'smoke',
+    name: 'Smoke',
+    icon: '🚬',
+    items: [
+      { id: 'cigarette', name: 'Cigarette', icon: '🚬' },
+      { id: 'weed', name: 'Weed', icon: '🌿' }
+    ]
+  },
+  {
+    id: 'drink',
+    name: 'Drink',
+    icon: '🍺',
+    subcategories: [
+      {
+        id: 'hot',
+        name: 'Hot',
+        icon: '☕',
+        items: [
+          { id: 'coffee', name: 'Coffee', icon: '☕' },
+          { id: 'tea', name: 'Tea', icon: '🍵' }
+        ]
+      },
+      {
+        id: 'cold',
+        name: 'Cold',
+        icon: '🧊',
+        items: [
+          { id: 'beer', name: 'Beer', icon: '🍺' },
+          { id: 'ginger_ale', name: 'Ginger Ale', icon: '🥤' },
+          { id: 'gin_and_tonic', name: 'Gin and Tonic', icon: '🍸' },
+          { id: 'iced_tea', name: 'Iced Tea', icon: '🧊' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'entertainment',
+    name: 'Entertainment',
+    icon: '🎮',
+    items: [
+      { id: 'computer_time', name: 'Computer Time', icon: '💻' }
+    ]
+  }
+];
 
 // Users
 export function getUsers(): User[] {
@@ -196,4 +260,63 @@ export function createReward(reward: Omit<Reward, 'id' | 'unlockedAt'>): Reward 
   rewards.push(newReward);
   saveToStorage(STORAGE_KEYS.rewards, rewards);
   return newReward;
+}
+
+// Reward Categories
+export function getRewardCategories(): RewardCategory[] {
+  const categories = getFromStorage<RewardCategory>(STORAGE_KEYS.rewardCategories);
+  // Return default categories if none exist
+  return categories.length > 0 ? categories : DEFAULT_REWARD_CATEGORIES;
+}
+
+export function saveRewardCategories(categories: RewardCategory[]): void {
+  saveToStorage(STORAGE_KEYS.rewardCategories, categories);
+}
+
+export function initializeDefaultRewardCategories(): void {
+  const existing = getFromStorage<RewardCategory>(STORAGE_KEYS.rewardCategories);
+  if (existing.length === 0) {
+    saveToStorage(STORAGE_KEYS.rewardCategories, DEFAULT_REWARD_CATEGORIES);
+  }
+}
+
+// Helper function to get all reward item IDs (flattened)
+export function getAllRewardItemIds(): string[] {
+  const categories = getRewardCategories();
+  const ids: string[] = [];
+
+  function collectIds(cats: RewardCategory[]) {
+    for (const cat of cats) {
+      if (cat.items) {
+        ids.push(...cat.items.map(item => item.id));
+      }
+      if (cat.subcategories) {
+        collectIds(cat.subcategories);
+      }
+    }
+  }
+
+  collectIds(categories);
+  return ids;
+}
+
+// Helper function to find a reward item by ID
+export function findRewardItem(id: string): RewardItem | null {
+  const categories = getRewardCategories();
+
+  function searchCategories(cats: RewardCategory[]): RewardItem | null {
+    for (const cat of cats) {
+      if (cat.items) {
+        const found = cat.items.find(item => item.id === id);
+        if (found) return found;
+      }
+      if (cat.subcategories) {
+        const found = searchCategories(cat.subcategories);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  return searchCategories(categories);
 }
