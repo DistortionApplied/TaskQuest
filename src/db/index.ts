@@ -9,16 +9,42 @@ let sqlite: Database.Database | null = null;
 
 function initDb() {
   if (!dbInstance) {
-    sqlite = new Database(dbPath);
-    sqlite.pragma("journal_mode = WAL");
-    dbInstance = drizzle(sqlite, { schema });
+    try {
+      sqlite = new Database(dbPath);
+      sqlite.pragma("journal_mode = WAL");
+      dbInstance = drizzle(sqlite, { schema });
+    } catch (error) {
+      console.error("Failed to initialize database:", error);
+      throw error;
+    }
   }
   return dbInstance;
 }
 
-export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
-  get(_, prop) {
-    const instance = initDb();
-    return ((instance as unknown) as Record<PropertyKey, unknown>)[prop];
+// Initialize immediately on module load
+try {
+  initDb();
+} catch (error) {
+  console.error("Database initialization error:", error);
+}
+
+export const db = {
+  get select() {
+    return initDb().select;
   },
-});
+  get insert() {
+    return initDb().insert;
+  },
+  get update() {
+    return initDb().update;
+  },
+  get delete() {
+    return initDb().delete;
+  },
+  get query() {
+    return initDb().query;
+  },
+  get transaction() {
+    return initDb().transaction;
+  },
+} as unknown as ReturnType<typeof drizzle<typeof schema>>;

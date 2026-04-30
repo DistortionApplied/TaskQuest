@@ -30,23 +30,54 @@ export async function GET() {
 // POST /api/requests - Create new request
 export async function POST(request: Request) {
   try {
-    const { itemName, itemType, description, tasks: taskData } = await request.json();
+    const body = await request.json();
+    const { itemName, itemType, description, tasks: taskData } = body;
+
+    if (!itemName || !itemType) {
+      return NextResponse.json(
+        { error: "itemName and itemType are required" },
+        { status: 400 }
+      );
+    }
 
     // Create request
-    const newRequest = await db.insert(requests).values({
-      userId: 1,
-      itemName,
-      itemType,
-      description,
-      requiredTasksCount: taskData.length,
-      completedTasksCount: 0,
-      isCompleted: 0,
-    }).returning();
+    const newRequest = await db
+      .insert(requests)
+      .values({
+        userId: 1,
+        itemName,
+        itemType,
+        description: description || null,
+        requiredTasksCount: taskData?.length || 0,
+        completedTasksCount: 0,
+        isCompleted: 0,
+      })
+      .returning();
 
-    // TODO: Create tasks - temporarily disabled due to Drizzle typing issues
+    // Create tasks if provided
+    if (taskData && Array.isArray(taskData) && newRequest[0]) {
+      for (const task of taskData) {
+        await db
+          .insert(tasks)
+          .values({
+            requestId: newRequest[0].id,
+            title: task.title,
+            description: task.description || null,
+            xpValue: task.xpValue || 10,
+            isCompleted: 0,
+          })
+          .returning();
+      }
+    }
 
     return NextResponse.json(newRequest[0], { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create request" }, { status: 500 });
+    console.error("Error creating request:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to create request";
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: 500 }
+    );
   }
 }
