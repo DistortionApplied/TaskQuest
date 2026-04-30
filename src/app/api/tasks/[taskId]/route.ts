@@ -52,7 +52,7 @@ export async function PUT(
       .from(tasks)
       .where(eq(tasks.requestId, task.requestId!));
 
-    const completedCount = allTasks.filter(t => t.isCompleted === 1).length;
+    const completedCount = allTasks.filter((t: any) => t.isCompleted === 1).length;
 
     await db.update(requests).set({
       completedTasksCount: completedCount,

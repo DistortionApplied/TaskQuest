@@ -1,15 +1,13 @@
-import { createClient } from "@libsql/client";
+import Database from "better-sqlite3";
 import { readdir, readFile } from "fs/promises";
 import { resolve } from "path";
 
 async function main() {
-  const dbPath = process.env.DB_URL || "file:./app.db";
-  const client = createClient({
-    url: dbPath,
-  });
+  const dbPath = process.env.DB_URL?.replace("file:", "") || "./app.db";
+  const db = new Database(dbPath);
 
   // Create migrations table if it doesn't exist
-  await client.execute(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS "__drizzle_migrations" (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       hash text NOT NULL UNIQUE,
@@ -24,29 +22,22 @@ async function main() {
 
   for (const file of migrationFiles) {
     const hash = file;
-    const existing = await client.execute(
-      "SELECT * FROM __drizzle_migrations WHERE hash = ?",
-      [hash]
-    );
+    const existing = db
+      .prepare("SELECT * FROM __drizzle_migrations WHERE hash = ?")
+      .get(hash);
 
-    if (existing.rows.length === 0) {
+    if (!existing) {
       const sql = await readFile(resolve(migrationsDir, file), "utf-8");
-      // Split and execute each statement
-      const statements = sql.split(";").filter(s => s.trim());
-      for (const statement of statements) {
-        if (statement.trim()) {
-          await client.execute(statement);
-        }
-      }
-      await client.execute("INSERT INTO __drizzle_migrations (hash) VALUES (?)", [
-        hash,
-      ]);
+      db.exec(sql);
+      db.prepare("INSERT INTO __drizzle_migrations (hash) VALUES (?)").run(
+        hash
+      );
       console.log(`✓ Executed migration: ${file}`);
     }
   }
 
   console.log("✓ Migrations completed successfully!");
-  await client.close();
+  db.close();
 }
 
 main().catch(err => {
