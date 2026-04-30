@@ -23,6 +23,7 @@ export default function AddRequest() {
   const [categories, setCategories] = useState<RewardCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<RewardCategory | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<RewardCategory | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     initializeDefaultRewardCategories();
@@ -149,8 +150,22 @@ export default function AddRequest() {
   };
 
   const handleSubmit = () => {
-    if (!itemName.trim() || !selectedItem || tasks.some(t => !t.title.trim())) {
-      alert("Please fill in all required fields");
+    // Clear any previous error
+    setErrorMessage("");
+
+    if (!itemName.trim()) {
+      setErrorMessage("Please enter a reward name");
+      return;
+    }
+
+    if (!selectedItem) {
+      setErrorMessage("Please select a reward item");
+      return;
+    }
+
+    const emptyTasks = tasks.filter(t => !t.title.trim());
+    if (emptyTasks.length > 0) {
+      setErrorMessage("Please fill in all task titles");
       return;
     }
 
@@ -269,7 +284,9 @@ export default function AddRequest() {
                   <div className="flex items-center gap-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">XP Value:</label>
                     <Input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       value={task.xpValue.toString()}
                       onChange={(value) => updateTask(task.id, "xpValue", parseInt(value) || 0)}
                       className="w-20"
@@ -280,6 +297,13 @@ export default function AddRequest() {
             ))}
           </div>
         </div>
+
+        {/* Error Message */}
+        {errorMessage && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-3 mb-4">
+            <p className="text-red-600 dark:text-red-400 text-sm">{errorMessage}</p>
+          </div>
+        )}
 
         {/* Submit Button */}
         <div className="pb-4">
