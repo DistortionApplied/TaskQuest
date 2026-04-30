@@ -138,6 +138,16 @@ export function updateRequest(request: Request): void {
   }
 }
 
+export function deleteRequest(id: number): void {
+  // Delete the request
+  const requests = getRequests().filter(r => r.id !== id);
+  saveToStorage(STORAGE_KEYS.requests, requests);
+
+  // Delete all associated tasks
+  const tasks = getTasks().filter(t => t.requestId !== id);
+  saveToStorage(STORAGE_KEYS.tasks, tasks);
+}
+
 // Tasks
 export function getTasks(): Task[] {
   return getFromStorage<Task>(STORAGE_KEYS.tasks);

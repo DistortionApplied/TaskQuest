@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { RequestCard } from "@/components/RequestCard";
-import { getRequests } from "@/lib/clientData";
+import { getRequests, deleteRequest } from "@/lib/clientData";
 
 interface DisplayRequest {
   id: number;
@@ -18,7 +18,7 @@ export default function Home() {
   const [requests, setRequests] = useState<DisplayRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadRequests = () => {
     // Load requests directly from localStorage and convert to display format
     const data = getRequests().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     const displayData: DisplayRequest[] = data.map(req => ({
@@ -32,8 +32,17 @@ export default function Home() {
     }));
 
     setRequests(displayData);
+  };
+
+  useEffect(() => {
+    loadRequests();
     setLoading(false);
   }, []);
+
+  const handleDeleteRequest = (id: number) => {
+    deleteRequest(id);
+    loadRequests(); // Refresh the list
+  };
 
   if (loading) {
     return (
@@ -58,9 +67,8 @@ export default function Home() {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No requests yet</h2>
           <p className="text-gray-600 dark:text-gray-400">Create your first request to start earning rewards!</p>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {requests.map((request) => (
+        ) : (
+          requests.map((request) => (
             <RequestCard
               key={request.id}
               id={request.id}
@@ -69,11 +77,11 @@ export default function Home() {
               description={request.description}
               completedTasks={request.completedTasksCount}
               totalTasks={request.requiredTasksCount}
-              isCompleted={Boolean(request.isCompleted)}
+              isCompleted={request.isCompleted}
+              onDelete={handleDeleteRequest}
             />
-          ))}
-        </div>
-      )}
+          ))
+        )}
     </div>
   );
 }
