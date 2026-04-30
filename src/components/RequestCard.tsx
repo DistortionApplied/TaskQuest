@@ -48,12 +48,8 @@ export function RequestCard({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('Delete button clicked for request:', id, itemName);
-    if (onDelete && confirm(`Are you sure you want to delete "${itemName}"? This will also delete all associated tasks.`)) {
-      console.log('User confirmed deletion');
+    if (onDelete) {
       onDelete(id);
-    } else {
-      console.log('User cancelled deletion or onDelete not provided');
     }
   };
 

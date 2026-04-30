@@ -40,10 +40,8 @@ export default function Home() {
   }, []);
 
   const handleDeleteRequest = (id: number) => {
-    console.log('Deleting request:', id);
     deleteRequest(id);
     loadRequests(); // Refresh the list
-    console.log('Request deleted and list refreshed');
   };
 
   if (loading) {
