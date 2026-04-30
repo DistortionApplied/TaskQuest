@@ -16,7 +16,7 @@ export const requests = sqliteTable("requests", {
   description: text("description"),
   requiredTasksCount: integer("required_tasks_count").default(0),
   completedTasksCount: integer("completed_tasks_count").default(0),
-  isCompleted: integer("is_completed", { mode: "boolean" }).default(false),
+  isCompleted: integer("is_completed").default(0),
   createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
   completedAt: integer("completed_at", { mode: "timestamp" }),
 });
@@ -27,7 +27,7 @@ export const tasks = sqliteTable("tasks", {
   title: text("title").notNull(),
   description: text("description"),
   xpValue: integer("xp_value").default(10),
-  isCompleted: integer("is_completed", { mode: "boolean" }).default(false),
+  isCompleted: integer("is_completed").default(0),
   createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
   completedAt: integer("completed_at", { mode: "timestamp" }),
 });
