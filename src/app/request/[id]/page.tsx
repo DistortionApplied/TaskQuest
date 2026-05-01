@@ -37,13 +37,11 @@ export default function RequestDetail() {
 
     // Load data directly from localStorage
     const reqId = parseInt(requestId);
-    console.log('Loading request data for id:', reqId);
     const requestData = getRequestById(reqId);
-    console.log('Request data:', requestData);
     const tasksData = getTasksByRequestId(reqId);
-    console.log('Tasks data:', tasksData);
 
     if (requestData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRequest({
         ...requestData,
         isCompleted: Boolean(requestData.isCompleted),

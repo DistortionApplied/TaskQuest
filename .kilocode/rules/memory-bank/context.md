@@ -16,6 +16,12 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Recipe system for common features
 - [x] File-based data storage using JSON files
 - [x] Gamified task management mobile app with XP system, levels, and rewards
+- [x] Added Chores reward category with housework (indoors/outdoors) and errands subcategories
+- [x] Verified app uses NO APIs - all data stored client-side in localStorage
+- [x] Added Music subcategory to Entertainment with Live, Playlist, and Other subcategories
+- [x] Added new Work category with Custom subcategory
+- [x] Fixed mergeRewardCategories to do deep recursive merge so existing localStorage users receive new subcategories (Music, Work) on next load
+- [x] Added "Clear All Data" Danger Zone section to profile page (localhost:3000/profile)
 
 ## Current Structure
 
@@ -28,11 +34,12 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 
 ## Current Focus
 
-The template is ready. Next steps depend on user requirements:
+The app is a working gamified task management mobile app with no external APIs - all data is stored client-side using localStorage. Future changes must maintain this API-free architecture.
 
-1. What type of application to build
-2. What features are needed
-3. Design/branding preferences
+Next steps:
+1. Add requested features while preserving API-free design
+2. Ensure all new functionality uses localStorage for data persistence
+3. Maintain mobile-first responsive design
 
 ## Quick Start Guide
 
@@ -89,3 +96,5 @@ export async function GET() {
 | Initial | Template created with base setup |
 | 2026-04-30 | Built gamified task management mobile app with database, XP system, and mobile UI |
 | 2026-04-30 | Converted from database to file-based storage using JSON files |
+| 2026-05-01 | Added Music subcategory to Entertainment and new Work category |
+| 2026-05-01 | Fixed deep merge of reward categories so returning users get new nested subcategories |

@@ -28,6 +28,7 @@ export default function Home() {
     // Initialize data
     const user = initializeDefaultUser();
     initializeDefaultRewardCategories();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUser(user);
 
     // Initialize sample requests and tasks if none exist
@@ -127,8 +128,8 @@ export default function Home() {
       const updatedRequests = getRequests();
       setRequests(updatedRequests);
       // Dispatch event to notify other components
-      window.dispatchEvent(new CustomEvent('dataUpdated', { 
-        detail: { type: 'request' } 
+      window.dispatchEvent(new CustomEvent('dataUpdated', {
+        detail: { type: 'request' }
       }));
     }
   };

@@ -137,8 +137,109 @@ const DEFAULT_REWARD_CATEGORIES: RewardCategory[] = [
     id: 'entertainment',
     name: 'Entertainment',
     icon: '🎮',
-    items: [
-      { id: 'computer_time', name: 'Computer Time', icon: '💻' }
+    subcategories: [
+      {
+        id: 'computer',
+        name: 'Computer',
+        icon: '💻',
+        items: [
+          { id: 'computer_time', name: 'Computer Time', icon: '💻' }
+        ]
+      },
+      {
+        id: 'music',
+        name: 'Music',
+        icon: '🎵',
+        subcategories: [
+          {
+            id: 'live',
+            name: 'Live',
+            icon: '🎤',
+            items: [
+              { id: 'live_music', name: 'Live Music', icon: '🎤' }
+            ]
+          },
+          {
+            id: 'playlist',
+            name: 'Playlist',
+            icon: '🎵',
+            items: [
+              { id: 'playlist_music', name: 'Playlist', icon: '🎵' }
+            ]
+          },
+          {
+            id: 'other_music',
+            name: 'Other',
+            icon: '🎼',
+            items: [
+              { id: 'other_music', name: 'Other Music', icon: '🎼' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'chores',
+    name: 'Chores',
+    icon: '🧹',
+    subcategories: [
+      {
+        id: 'housework',
+        name: 'Housework',
+        icon: '🏠',
+        subcategories: [
+          {
+            id: 'indoors',
+            name: 'Indoors',
+            icon: '🏡',
+            items: [
+              { id: 'dishes', name: 'Dishes', icon: '🍽️' },
+              { id: 'bathroom', name: 'Bathroom', icon: '🛁' },
+              { id: 'bedroom', name: 'Bedroom', icon: '🛏️' },
+              { id: 'dog_room', name: 'Dog Room', icon: '🐕' },
+              { id: 'indoors_custom', name: 'Custom', icon: '✨' }
+            ]
+          },
+          {
+            id: 'outdoors',
+            name: 'Outdoors',
+            icon: '🌳',
+            items: [
+              { id: 'weeding', name: 'Weeding', icon: '🌱' },
+              { id: 'car_wash', name: 'Car Wash', icon: '🚗' },
+              { id: 'lawn_care', name: 'Lawn Care', icon: '🌿' },
+              { id: 'outdoors_custom', name: 'Custom', icon: '✨' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'errands',
+        name: 'Errands',
+        icon: '🛒',
+        items: [
+          { id: 'grocery_store', name: 'Grocery Store', icon: '🛒' },
+          { id: 'concord_stuff', name: 'Concord Stuff', icon: '📦' },
+          { id: 'ma_run', name: 'MA Run', icon: '🚗' },
+          { id: 'errands_other', name: 'Other', icon: '📝' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'work',
+    name: 'Work',
+    icon: '💼',
+    subcategories: [
+      {
+        id: 'custom_work',
+        name: 'Custom',
+        icon: '✨',
+        items: [
+          { id: 'custom_work_item', name: 'Custom Work', icon: '✨' }
+        ]
+      }
     ]
   }
 ];
@@ -287,7 +388,76 @@ export function initializeDefaultRewardCategories(): void {
   const existing = getFromStorage<RewardCategory>(STORAGE_KEYS.rewardCategories);
   if (existing.length === 0) {
     saveToStorage(STORAGE_KEYS.rewardCategories, DEFAULT_REWARD_CATEGORIES);
+  } else {
+    // Merge new categories with existing ones
+    const mergedCategories = mergeRewardCategories(existing, DEFAULT_REWARD_CATEGORIES);
+    saveToStorage(STORAGE_KEYS.rewardCategories, mergedCategories);
   }
+}
+
+// Helper function to merge new categories with existing ones (deep merge)
+function mergeRewardCategories(existing: RewardCategory[], defaults: RewardCategory[]): RewardCategory[] {
+  const result = [...existing];
+  const existingIds = new Set(existing.map(cat => cat.id));
+
+  // Add any new top-level categories that don't exist
+  for (const defaultCat of defaults) {
+    if (!existingIds.has(defaultCat.id)) {
+      result.push(defaultCat);
+    } else {
+      // Deep merge: update existing category's subcategories and items
+      const existingIndex = result.findIndex(cat => cat.id === defaultCat.id);
+      if (existingIndex !== -1) {
+        result[existingIndex] = mergeCategory(result[existingIndex], defaultCat);
+      }
+    }
+  }
+
+  return result;
+}
+
+// Recursively merge a single category with its default version
+function mergeCategory(existing: RewardCategory, defaultCat: RewardCategory): RewardCategory {
+  const merged: RewardCategory = { ...existing };
+
+  // Merge subcategories if both have them
+  if (defaultCat.subcategories) {
+    const existingSubs = existing.subcategories || [];
+    const existingSubIds = new Set(existingSubs.map(s => s.id));
+    const mergedSubs = [...existingSubs];
+
+    for (const defaultSub of defaultCat.subcategories) {
+      if (!existingSubIds.has(defaultSub.id)) {
+        // New subcategory — add it
+        mergedSubs.push(defaultSub);
+      } else {
+        // Existing subcategory — recurse to merge its children
+        const subIndex = mergedSubs.findIndex(s => s.id === defaultSub.id);
+        if (subIndex !== -1) {
+          mergedSubs[subIndex] = mergeCategory(mergedSubs[subIndex], defaultSub);
+        }
+      }
+    }
+
+    merged.subcategories = mergedSubs;
+  }
+
+  // Merge items if both have them
+  if (defaultCat.items) {
+    const existingItems = existing.items || [];
+    const existingItemIds = new Set(existingItems.map(i => i.id));
+    const mergedItems = [...existingItems];
+
+    for (const defaultItem of defaultCat.items) {
+      if (!existingItemIds.has(defaultItem.id)) {
+        mergedItems.push(defaultItem);
+      }
+    }
+
+    merged.items = mergedItems;
+  }
+
+  return merged;
 }
 
 // Helper function to get all reward item IDs (flattened)

@@ -11,14 +11,18 @@ const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined
 
 export function DarkModeProvider({ children }: { children: ReactNode }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     // Check for saved theme preference or default to light mode
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
     const shouldBeDark = savedTheme === "dark" || (!savedTheme && prefersDark);
+    
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDarkMode(shouldBeDark);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
 
     // Apply the theme class to the document
     if (shouldBeDark) {
@@ -40,6 +44,11 @@ export function DarkModeProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("theme", "light");
     }
   };
+
+  // Prevent hydration mismatch by not rendering context until mounted
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
   return (
     <DarkModeContext.Provider value={{ isDarkMode, toggleDarkMode }}>

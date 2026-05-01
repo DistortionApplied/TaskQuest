@@ -23,10 +23,12 @@ export default function AddRequest() {
   const [categories, setCategories] = useState<RewardCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<RewardCategory | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<RewardCategory | null>(null);
+  const [selectedSubSubcategory, setSelectedSubSubcategory] = useState<RewardCategory | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     initializeDefaultRewardCategories();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCategories(getRewardCategories());
   }, []);
 
@@ -55,11 +57,18 @@ export default function AddRequest() {
   const handleCategorySelect = (category: RewardCategory) => {
     setSelectedCategory(category);
     setSelectedSubcategory(null);
+    setSelectedSubSubcategory(null);
     setSelectedItem(null);
   };
 
   const handleSubcategorySelect = (subcategory: RewardCategory) => {
     setSelectedSubcategory(subcategory);
+    setSelectedSubSubcategory(null);
+    setSelectedItem(null);
+  };
+
+  const handleSubSubcategorySelect = (subSubcategory: RewardCategory) => {
+    setSelectedSubSubcategory(subSubcategory);
     setSelectedItem(null);
   };
 
@@ -120,15 +129,41 @@ export default function AddRequest() {
           </div>
         )}
 
+        {/* Sub-subcategories (for nested categories like housework -> indoors/outdoors) */}
+        {selectedSubcategory?.subcategories && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {selectedSubcategory.name} Type
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {selectedSubcategory.subcategories.map((subSubcategory) => (
+                <button
+                  key={subSubcategory.id}
+                  onClick={() => handleSubSubcategorySelect(subSubcategory)}
+                  className={`p-3 border rounded-lg text-center transition-colors ${
+                    selectedSubSubcategory?.id === subSubcategory.id
+                      ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                      : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+                  }`}
+                >
+                  <div className="text-2xl mb-1">{subSubcategory.icon}</div>
+                  <div className="text-sm">{subSubcategory.name}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Items */}
         {((selectedCategory && !selectedCategory.subcategories && selectedCategory.items) ||
-          (selectedSubcategory && selectedSubcategory.items)) && (
+          (selectedSubcategory && !selectedSubcategory.subcategories && selectedSubcategory.items) ||
+          (selectedSubSubcategory && selectedSubSubcategory.items)) && (
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Specific Item
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {(selectedSubcategory?.items || selectedCategory?.items || []).map((item) => (
+              {(selectedSubSubcategory?.items || selectedSubcategory?.items || selectedCategory?.items || []).map((item) => (
                 <button
                   key={item.id}
                   onClick={() => handleItemSelect(item)}

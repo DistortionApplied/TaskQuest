@@ -24,40 +24,30 @@ export default function Profile() {
 
   const loadProfileData = () => {
     try {
-      console.log('Loading profile data...');
       // Load data directly from localStorage
       const userData = getUserById(1);
-      console.log('User data loaded:', userData);
-
-      const requestsData = getRequests();
-      console.log('Requests data loaded:', requestsData?.length, 'items');
-
       if (userData) {
-        console.log('Setting user data in profile:', userData);
         setUser(userData);
       } else {
-        console.log('No user data found, creating default user');
         // Initialize default user if none exists
-        const defaultUser = {
+        setUser({
           id: 1,
           name: "Player",
           xp: 0,
           level: 1,
-          createdAt: new Date().toISOString(),
-        };
-        setUser(defaultUser);
+        });
       }
-
+      const requestsData = getRequests();
       setRequests(requestsData);
-      console.log('Profile data loaded successfully');
     } catch (error) {
       console.error('Error loading profile data:', error);
     }
   };
 
   useEffect(() => {
-    console.log('Profile page useEffect triggered');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProfileData();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(false);
   }, []);
 
@@ -118,6 +108,19 @@ export default function Profile() {
     );
   }
 
+  const handleClearData = () => {
+    if (confirm("Are you sure you want to clear ALL data? This will reset your XP, level, requests, and tasks. This cannot be undone.")) {
+      try {
+        localStorage.clear();
+        alert("All data has been cleared. The app will now reload.");
+        window.location.href = "/";
+      } catch (error) {
+        console.error("Error clearing data:", error);
+        alert("Failed to clear data.");
+      }
+    }
+  };
+
   const totalRequests = requests.length;
   const completedRequests = requests.filter(r => r.isCompleted).length;
   const xpForNextLevel = 100; // Assuming 100 XP per level
@@ -170,6 +173,22 @@ export default function Profile() {
             <div className="text-4xl mb-2">🏆</div>
             <p>Complete more tasks to unlock achievements!</p>
           </div>
+        </div>
+      </div>
+
+      {/* Danger Zone */}
+      <div className="mt-6 mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Danger Zone</h3>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-red-200 dark:border-red-800">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            Clear all app data including requests, tasks, and XP progress. This cannot be undone.
+          </p>
+          <button
+            onClick={handleClearData}
+            className="w-full py-2 px-4 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            Clear All Data
+          </button>
         </div>
       </div>
     </div>
