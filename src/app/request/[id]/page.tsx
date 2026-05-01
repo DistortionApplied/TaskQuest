@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { TaskItem } from "@/components/TaskItem";
 import { Button } from "@/components/ui/Button";
-import { getRequestById, getTasksByRequestId, updateTask, updateRequest, getUserById, updateUser, findRewardItem } from "@/lib/clientData";
+import { getRequestById, getTasksByRequestId, updateTask, updateRequest, getUserById, updateUser, findRewardItem, calculateLevelFromXp } from "@/lib/clientData";
 
 interface Task {
   id: number;
@@ -93,7 +93,7 @@ export default function RequestDetail() {
         const currentXP = user.xp || 0;
         const taskXP = task.xpValue || 0;
         const newXP = currentXP + taskXP;
-        const newLevel = Math.floor(newXP / 100) + 1;
+        const newLevel = calculateLevelFromXp(newXP);
 
         console.log(`XP: ${currentXP} + ${taskXP} = ${newXP}, Level: ${newLevel}`);
 

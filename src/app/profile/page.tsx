@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { XPBar } from "@/components/XPBar";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
-import { getUserById, getRequests } from "@/lib/clientData";
+import { getUserById, getRequests, getXpForNextLevel } from "@/lib/clientData";
 
 interface User {
   id: number;
@@ -123,7 +123,7 @@ export default function Profile() {
 
   const totalRequests = requests.length;
   const completedRequests = requests.filter(r => r.isCompleted).length;
-  const xpForNextLevel = 100; // Assuming 100 XP per level
+  const xpForNextLevel = getXpForNextLevel(user.level);
 
   return (
     <div className="p-4">

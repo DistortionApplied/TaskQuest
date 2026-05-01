@@ -22,6 +22,8 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Added new Work category with Custom subcategory
 - [x] Fixed mergeRewardCategories to do deep recursive merge so existing localStorage users receive new subcategories (Music, Work) on next load
 - [x] Added "Clear All Data" Danger Zone section to profile page (localhost:3000/profile)
+- [x] Fixed dark mode toggle functionality by adding Tailwind CSS 4 @custom-variant dark configuration and correcting swapped sun/moon icons
+- [x] Updated XP progression system: Level 1-2 requires 100 XP, each subsequent level increases by 20 XP (Level 2-3: 120 XP, Level 3-4: 140 XP, etc.)
 
 ## Current Structure
 
@@ -98,3 +100,5 @@ export async function GET() {
 | 2026-04-30 | Converted from database to file-based storage using JSON files |
 | 2026-05-01 | Added Music subcategory to Entertainment and new Work category |
 | 2026-05-01 | Fixed deep merge of reward categories so returning users get new nested subcategories |
+| 2026-05-01 | Fixed dark mode toggle functionality by adding Tailwind CSS 4 @custom-variant dark configuration and correcting swapped sun/moon icons |
+| 2026-05-01 | Updated XP progression system: Level 1-2 requires 100 XP, each subsequent level increases by 20 XP |

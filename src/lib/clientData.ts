@@ -500,3 +500,54 @@ export function findRewardItem(id: string): RewardItem | null {
 
   return searchCategories(categories);
 }
+
+// XP calculation functions
+export function getXpForNextLevel(currentLevel: number): number {
+  // Level 1 to 2: 100 XP
+  // Level 2 to 3: 120 XP
+  // Level 3 to 4: 140 XP
+  // Formula: 100 + 20 * (currentLevel - 1)
+  return 100 + (20 * (currentLevel - 1));
+}
+
+export function getXpProgressInCurrentLevel(totalXp: number, currentLevel: number): number {
+  // Calculate how much XP the user has earned in the current level
+  let xpInCurrentLevel = totalXp;
+
+  // Subtract XP required for all previous levels
+  for (let level = 1; level < currentLevel; level++) {
+    xpInCurrentLevel -= getXpForNextLevel(level);
+  }
+
+  return Math.max(0, xpInCurrentLevel);
+}
+
+export function calculateLevelFromXp(totalXp: number): number {
+  // Calculate what level the user should be at based on total XP
+  let level = 1;
+  let xpNeeded = 0;
+
+  while (true) {
+    const xpForThisLevel = getXpForNextLevel(level);
+    xpNeeded += xpForThisLevel;
+
+    if (totalXp < xpNeeded) {
+      break;
+    }
+
+    level++;
+  }
+
+  return level;
+}
+
+export function getTotalXpRequiredForLevel(targetLevel: number): number {
+  // Calculate total XP required to reach a specific level
+  let totalXp = 0;
+
+  for (let level = 1; level < targetLevel; level++) {
+    totalXp += getXpForNextLevel(level);
+  }
+
+  return totalXp;
+}

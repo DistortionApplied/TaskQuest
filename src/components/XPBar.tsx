@@ -1,3 +1,5 @@
+import { getXpForNextLevel, getXpProgressInCurrentLevel } from "@/lib/clientData";
+
 interface XPBarProps {
   currentXP: number;
   level: number;
@@ -5,15 +7,15 @@ interface XPBarProps {
 }
 
 export function XPBar({ currentXP, level, xpForNextLevel }: XPBarProps) {
-  // Calculate XP progress within the current level (100 XP per level)
-  const xpInLevel = currentXP % 100;
-  const progressPercentage = Math.min((xpInLevel / 100) * 100, 100);
+  // Calculate XP progress within the current level using the new system
+  const xpInLevel = getXpProgressInCurrentLevel(currentXP, level);
+  const progressPercentage = Math.min((xpInLevel / xpForNextLevel) * 100, 100);
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-4">
       <div className="flex justify-between items-center mb-2">
         <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Level {level}</span>
-        <span className="text-sm text-gray-500 dark:text-gray-500">{xpInLevel}/100 XP</span>
+        <span className="text-sm text-gray-500 dark:text-gray-500">{xpInLevel}/{xpForNextLevel} XP</span>
       </div>
       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
         <div

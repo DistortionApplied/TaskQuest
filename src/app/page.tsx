@@ -13,6 +13,7 @@ import {
   deleteRequest,
   initializeDefaultUser,
   initializeDefaultRewardCategories,
+  getXpForNextLevel,
   User,
   Request,
 } from "@/lib/clientData";
@@ -30,57 +31,6 @@ export default function Home() {
     initializeDefaultRewardCategories();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setUser(user);
-
-    // Initialize sample requests and tasks if none exist
-    const existingRequests = getRequests();
-    if (existingRequests.length === 0) {
-      // Create sample requests with tasks
-      const sampleRequests = [
-        {
-          userId: 1,
-          itemType: "coffee",
-          itemName: "Coffee",
-          description: "A nice cup of coffee",
-          requiredTasksCount: 3,
-          completedTasksCount: 0,
-          isCompleted: 0,
-        },
-        {
-          userId: 1,
-          itemType: "beer",
-          itemName: "Beer",
-          description: "An ice-cold beer",
-          requiredTasksCount: 3,
-          completedTasksCount: 0,
-          isCompleted: 0,
-        },
-        {
-          userId: 1,
-          itemType: "cigarette",
-          itemName: "Cigarette",
-          description: "A relaxing cigarette",
-          requiredTasksCount: 2,
-          completedTasksCount: 0,
-          isCompleted: 0,
-        },
-      ];
-
-      sampleRequests.forEach((req) => {
-        const newRequest = createRequest(req);
-
-        // Create tasks for this request
-        const taskCount = req.requiredTasksCount;
-        for (let i = 1; i <= taskCount; i++) {
-          createTask({
-            requestId: newRequest.id,
-            title: `Task ${i}`,
-            description: `Complete this task to earn XP`,
-            xpValue: 10,
-            isCompleted: 0,
-          });
-        }
-      });
-    }
 
     const allRequests = getRequests();
     setRequests(allRequests);
@@ -163,7 +113,7 @@ export default function Home() {
       <XPBar
         currentXP={user.xp}
         level={user.level}
-        xpForNextLevel={100}
+        xpForNextLevel={getXpForNextLevel(user.level)}
       />
 
       {/* Active Requests List */}
