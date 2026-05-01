@@ -113,7 +113,7 @@ export default function Profile() {
       try {
         localStorage.clear();
         alert("All data has been cleared. The app will now reload.");
-        window.location.href = "/";
+        window.location.href = "/requests";
       } catch (error) {
         console.error("Error clearing data:", error);
         alert("Failed to clear data.");

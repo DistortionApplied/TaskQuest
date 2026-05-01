@@ -232,8 +232,8 @@ export default function AddRequest() {
       setDescription("");
       setTasks([{ id: 1, title: "", description: "", xpValue: 10 }]);
       alert("Request created successfully!");
-      // Navigate back to home
-      window.location.href = "/";
+      // Navigate back to requests
+      window.location.href = "/requests";
     } catch (error) {
       console.error("Error creating request:", error);
       alert("Failed to create request");

@@ -24,6 +24,10 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Added "Clear All Data" Danger Zone section to profile page (localhost:3000/profile)
 - [x] Fixed dark mode toggle functionality by adding Tailwind CSS 4 @custom-variant dark configuration and correcting swapped sun/moon icons
 - [x] Updated XP progression system: Level 1-2 requires 100 XP, each subsequent level increases by 20 XP (Level 2-3: 120 XP, Level 3-4: 140 XP, etc.)
+- [x] Removed sample request cards that were automatically created at app startup
+- [x] Created title screen for home page (/) with app introduction and call-to-action to start quest
+- [x] Moved requests functionality to new /requests page
+- [x] Updated navigation and redirects to point to correct pages
 
 ## Current Structure
 
@@ -102,3 +106,6 @@ export async function GET() {
 | 2026-05-01 | Fixed deep merge of reward categories so returning users get new nested subcategories |
 | 2026-05-01 | Fixed dark mode toggle functionality by adding Tailwind CSS 4 @custom-variant dark configuration and correcting swapped sun/moon icons |
 | 2026-05-01 | Updated XP progression system: Level 1-2 requires 100 XP, each subsequent level increases by 20 XP |
+| 2026-05-01 | Removed sample request cards that were automatically created at app startup |
+| 2026-05-01 | Created title screen for home page with app introduction and moved requests to /requests page |
+| 2026-05-01 | Fixed requests page 404 issue and ensured app opens to title screen by default |
