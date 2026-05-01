@@ -16,4 +16,4 @@ To Do:
     - username
 - more user customizability
     - nameable categories
--
+- Food Category

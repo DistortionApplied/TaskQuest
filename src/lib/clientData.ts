@@ -242,6 +242,61 @@ const DEFAULT_REWARD_CATEGORIES: RewardCategory[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'food',
+    name: 'Food',
+    icon: '🍽️',
+    subcategories: [
+      {
+        id: 'home_cooking',
+        name: 'Home Cooking',
+        icon: '🏠',
+        items: [
+          { id: 'home_cooking_breakfast', name: 'Breakfast', icon: '🥐' },
+          { id: 'home_cooking_lunch', name: 'Lunch', icon: '🥪' },
+          { id: 'home_cooking_dinner', name: 'Dinner', icon: '🍽️' },
+          { id: 'home_cooking_snack', name: 'Snack', icon: '🍿' },
+          { id: 'home_cooking_other', name: 'Other', icon: '🍽️' }
+        ]
+      },
+      {
+        id: 'dine_out',
+        name: 'Dine out',
+        icon: '🍽️',
+        items: [
+          { id: 'dine_out_breakfast', name: 'Breakfast', icon: '🥐' },
+          { id: 'dine_out_lunch', name: 'Lunch', icon: '🥪' },
+          { id: 'dine_out_dinner', name: 'Dinner', icon: '🍽️' },
+          { id: 'dine_out_snack', name: 'Snack', icon: '🍿' },
+          { id: 'dine_out_other', name: 'Other', icon: '🍽️' }
+        ]
+      },
+      {
+        id: 'order_in',
+        name: 'Order in',
+        icon: '📦',
+        items: [
+          { id: 'order_in_breakfast', name: 'Breakfast', icon: '🥐' },
+          { id: 'order_in_lunch', name: 'Lunch', icon: '🥪' },
+          { id: 'order_in_dinner', name: 'Dinner', icon: '🍽️' },
+          { id: 'order_in_snack', name: 'Snack', icon: '🍿' },
+          { id: 'order_in_other', name: 'Other', icon: '🍽️' }
+        ]
+      },
+      {
+        id: 'food_other',
+        name: 'Other',
+        icon: '🍽️',
+        items: [
+          { id: 'food_other_breakfast', name: 'Breakfast', icon: '🥐' },
+          { id: 'food_other_lunch', name: 'Lunch', icon: '🥪' },
+          { id: 'food_other_dinner', name: 'Dinner', icon: '🍽️' },
+          { id: 'food_other_snack', name: 'Snack', icon: '🍿' },
+          { id: 'food_other_other', name: 'Other', icon: '🍽️' }
+        ]
+      }
+    ]
   }
 ];
 
