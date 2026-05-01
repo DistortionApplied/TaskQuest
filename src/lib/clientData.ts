@@ -69,9 +69,19 @@ function getFromStorage<T>(key: string): T[] {
   if (typeof window === 'undefined') return [];
   try {
     const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+
+    const parsed = JSON.parse(data);
+    // Ensure we return an array
+    return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    console.error(`Error reading from localStorage:`, error);
+    console.error(`Error reading from localStorage key "${key}":`, error);
+    // Clear corrupted data
+    try {
+      localStorage.removeItem(key);
+    } catch (clearError) {
+      console.error('Error clearing corrupted data:', clearError);
+    }
     return [];
   }
 }

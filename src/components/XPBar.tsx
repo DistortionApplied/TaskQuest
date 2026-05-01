@@ -5,8 +5,9 @@ interface XPBarProps {
 }
 
 export function XPBar({ currentXP, level, xpForNextLevel }: XPBarProps) {
-  const xpInLevel = currentXP - ((level - 1) * 100); // Assuming 100 XP per level
-  const progressPercentage = (xpInLevel / 100) * 100;
+  // Calculate XP progress within the current level (100 XP per level)
+  const xpInLevel = currentXP % 100;
+  const progressPercentage = Math.min((xpInLevel / 100) * 100, 100);
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-4">

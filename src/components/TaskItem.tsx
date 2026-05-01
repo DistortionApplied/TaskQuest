@@ -22,7 +22,10 @@ export function TaskItem({
   const [isChecked, setIsChecked] = useState(isCompleted);
 
   const handleToggle = () => {
-    setIsChecked(!isChecked);
+    console.log('TaskItem handleToggle called for task:', id, 'current isCompleted:', isCompleted);
+    const newChecked = !isChecked;
+    setIsChecked(newChecked);
+    console.log('TaskItem state updated to:', newChecked, 'calling onToggle');
     onToggle(id);
   };
 
