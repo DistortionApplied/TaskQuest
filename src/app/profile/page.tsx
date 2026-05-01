@@ -22,27 +22,80 @@ export default function Profile() {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Load data directly from localStorage
-    const userData = getUserById(1);
-    const requestsData = getRequests();
+  const loadProfileData = () => {
+    try {
+      console.log('Loading profile data...');
+      // Load data directly from localStorage
+      const userData = getUserById(1);
+      console.log('User data loaded:', userData);
 
-    if (userData) {
-      setUser(userData);
-    } else {
-      // Initialize default user if none exists
-      const defaultUser = {
-        id: 1,
-        name: "Player",
-        xp: 0,
-        level: 1,
-        createdAt: new Date().toISOString(),
-      };
-      setUser(defaultUser);
+      const requestsData = getRequests();
+      console.log('Requests data loaded:', requestsData?.length, 'items');
+
+      if (userData) {
+        console.log('Setting user data in profile:', userData);
+        setUser(userData);
+      } else {
+        console.log('No user data found, creating default user');
+        // Initialize default user if none exists
+        const defaultUser = {
+          id: 1,
+          name: "Player",
+          xp: 0,
+          level: 1,
+          createdAt: new Date().toISOString(),
+        };
+        setUser(defaultUser);
+      }
+
+      setRequests(requestsData);
+      console.log('Profile data loaded successfully');
+    } catch (error) {
+      console.error('Error loading profile data:', error);
     }
+  };
 
-    setRequests(requestsData);
+  useEffect(() => {
+    console.log('Profile page useEffect triggered');
+    loadProfileData();
     setLoading(false);
+  }, []);
+
+  // Refresh data when component becomes visible (user navigates back to profile)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('Profile page became visible, refreshing data');
+        loadProfileData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Also refresh on focus
+    const handleFocus = () => {
+      console.log('Profile page focused, refreshing data');
+      loadProfileData();
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    // Listen for custom data update events
+    const handleDataUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail?.type === 'user') {
+        console.log('User data updated, refreshing profile');
+        loadProfileData();
+      }
+    };
+
+    window.addEventListener('dataUpdated', handleDataUpdate);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('dataUpdated', handleDataUpdate);
+    };
   }, []);
 
   if (loading) {

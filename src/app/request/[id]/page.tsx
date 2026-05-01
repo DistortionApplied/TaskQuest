@@ -37,8 +37,11 @@ export default function RequestDetail() {
 
     // Load data directly from localStorage
     const reqId = parseInt(requestId);
+    console.log('Loading request data for id:', reqId);
     const requestData = getRequestById(reqId);
+    console.log('Request data:', requestData);
     const tasksData = getTasksByRequestId(reqId);
+    console.log('Tasks data:', tasksData);
 
     if (requestData) {
       setRequest({
@@ -52,10 +55,16 @@ export default function RequestDetail() {
   }, [requestId]);
 
   const handleTaskToggle = (taskId: number) => {
+    console.log('handleTaskToggle called with taskId:', taskId);
     const task = tasks.find(t => t.id === taskId);
-    if (!task || !request) return;
+    console.log('Found task:', task);
+    if (!task || !request) {
+      console.log('Task or request not found');
+      return;
+    }
 
     const newIsCompleted = task.isCompleted === 0 ? 1 : 0;
+    console.log('Toggling task completion:', task.isCompleted, '->', newIsCompleted);
 
     // Update task
     const updatedTask = {
@@ -79,18 +88,28 @@ export default function RequestDetail() {
 
     // Award XP if task was completed
     if (newIsCompleted === 1) {
+      console.log('Awarding XP for task completion');
       const user = getUserById(1);
+      console.log('Current user:', user);
       if (user) {
         const currentXP = user.xp || 0;
         const taskXP = task.xpValue || 0;
         const newXP = currentXP + taskXP;
         const newLevel = Math.floor(newXP / 100) + 1;
 
+        console.log(`XP: ${currentXP} + ${taskXP} = ${newXP}, Level: ${newLevel}`);
+
         updateUser({
           ...user,
           xp: newXP,
           level: newLevel,
         });
+        console.log('User updated with new XP');
+
+        // Dispatch custom event to notify other components of data change
+        window.dispatchEvent(new CustomEvent('dataUpdated', { 
+          detail: { type: 'user', userId: user.id } 
+        }));
       }
     }
 
