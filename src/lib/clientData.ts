@@ -43,6 +43,7 @@ export interface Reward {
 // Storage keys
 const STORAGE_KEYS = {
   users: 'gamified_app_users',
+  currentUserId: 'gamified_app_current_user_id',
   requests: 'gamified_app_requests',
   tasks: 'gamified_app_tasks',
   rewards: 'gamified_app_rewards',
@@ -263,9 +264,122 @@ export function updateUser(user: User): void {
   }
 }
 
+// Profile Management
+export function getCurrentUserId(): number | null {
+  const stored = localStorage.getItem(STORAGE_KEYS.currentUserId);
+  return stored ? parseInt(stored) : null;
+}
+
+export function setCurrentUserId(userId: number | null): void {
+  if (userId === null) {
+    localStorage.removeItem(STORAGE_KEYS.currentUserId);
+  } else {
+    localStorage.setItem(STORAGE_KEYS.currentUserId, userId.toString());
+  }
+}
+
+export function getCurrentUser(): User | null {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) return null;
+  const user = getUserById(currentUserId);
+  return user || null;
+}
+
+export function createUser(name: string): User {
+  const users = getUsers();
+  const newId = Math.max(0, ...users.map(u => u.id)) + 1;
+
+  const newUser: User = {
+    id: newId,
+    name: name.trim(),
+    xp: 0,
+    level: 1,
+    createdAt: new Date().toISOString(),
+  };
+
+  users.push(newUser);
+  saveToStorage(STORAGE_KEYS.users, users);
+
+  // Set as current user
+  setCurrentUserId(newId);
+
+  return newUser;
+}
+
+export function switchToUser(userId: number): User | null {
+  const user = getUserById(userId);
+  if (user) {
+    setCurrentUserId(userId);
+    return user;
+  }
+  return null;
+}
+
+export function deleteUser(userId: number): void {
+  // Don't allow deleting the last user
+  const users = getUsers();
+  if (users.length <= 1) return;
+
+  // Remove user
+  const filteredUsers = users.filter(u => u.id !== userId);
+  saveToStorage(STORAGE_KEYS.users, filteredUsers);
+
+  // Remove all user's data
+  const requests = getRequests().filter(r => r.userId !== userId);
+  const tasks = getTasks().filter(t => {
+    const request = requests.find(r => r.id === t.requestId);
+    return request !== undefined; // Keep tasks that belong to remaining requests
+  });
+  const rewards = getRewards().filter(r => r.userId !== userId);
+
+  saveToStorage(STORAGE_KEYS.requests, requests);
+  saveToStorage(STORAGE_KEYS.tasks, tasks);
+  saveToStorage(STORAGE_KEYS.rewards, rewards);
+
+  // Switch to another user if current user was deleted
+  const currentUserId = getCurrentUserId();
+  if (currentUserId === userId && filteredUsers.length > 0) {
+    setCurrentUserId(filteredUsers[0].id);
+  }
+}
+
+export function deleteCurrentProfile(): boolean {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) return false;
+
+  // Don't allow deleting the last user
+  const users = getUsers();
+  if (users.length <= 1) return false;
+
+  // Remove current user
+  const filteredUsers = users.filter(u => u.id !== currentUserId);
+  saveToStorage(STORAGE_KEYS.users, filteredUsers);
+
+  // Remove all current user's data
+  const requests = getRequests().filter(r => r.userId !== currentUserId);
+  const tasks = getTasks().filter(t => {
+    const request = requests.find(r => r.id === t.requestId);
+    return request !== undefined; // Keep tasks that belong to remaining requests
+  });
+  const rewards = getRewards().filter(r => r.userId !== currentUserId);
+
+  saveToStorage(STORAGE_KEYS.requests, requests);
+  saveToStorage(STORAGE_KEYS.tasks, tasks);
+  saveToStorage(STORAGE_KEYS.rewards, rewards);
+
+  // Clear current user selection (will redirect to profile selector)
+  setCurrentUserId(null);
+
+  return true;
+}
+
 export function initializeDefaultUser(): User {
   const existingUsers = getUsers();
   if (existingUsers.length > 0) {
+    // If users exist but no current user is set, set the first one as current
+    if (!getCurrentUserId()) {
+      setCurrentUserId(existingUsers[0].id);
+    }
     return existingUsers[0];
   }
 
@@ -278,6 +392,7 @@ export function initializeDefaultUser(): User {
   };
 
   saveToStorage(STORAGE_KEYS.users, [defaultUser]);
+  setCurrentUserId(defaultUser.id);
   return defaultUser;
 }
 
@@ -286,16 +401,28 @@ export function getRequests(): Request[] {
   return getFromStorage<Request>(STORAGE_KEYS.requests);
 }
 
+export function getRequestsForCurrentUser(): Request[] {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) return [];
+  return getRequests().filter(r => r.userId === currentUserId);
+}
+
 export function getRequestById(id: number): Request | undefined {
   const requests = getRequests();
   return requests.find(request => request.id === id);
 }
 
 export function createRequest(request: Omit<Request, 'id' | 'createdAt'>): Request {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    throw new Error('No current user selected');
+  }
+
   const requests = getRequests();
   const newId = Math.max(0, ...requests.map(r => r.id)) + 1;
   const newRequest: Request = {
     ...request,
+    userId: currentUserId,
     id: newId,
     createdAt: new Date().toISOString(),
   };
@@ -333,6 +460,12 @@ export function getTasksByRequestId(requestId: number): Task[] {
   return tasks.filter(task => task.requestId === requestId);
 }
 
+export function getTasksForCurrentUser(): Task[] {
+  const currentUserRequests = getRequestsForCurrentUser();
+  const requestIds = currentUserRequests.map(r => r.id);
+  return getTasks().filter(task => requestIds.includes(task.requestId));
+}
+
 export function createTask(task: Omit<Task, 'id' | 'createdAt'>): Task {
   const tasks = getTasks();
   const newId = Math.max(0, ...tasks.map(t => t.id)) + 1;
@@ -361,16 +494,28 @@ export function getRewards(): Reward[] {
 }
 
 export function createReward(reward: Omit<Reward, 'id' | 'unlockedAt'>): Reward {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    throw new Error('No current user selected');
+  }
+
   const rewards = getRewards();
   const newId = Math.max(0, ...rewards.map(r => r.id)) + 1;
   const newReward: Reward = {
     ...reward,
+    userId: currentUserId,
     id: newId,
     unlockedAt: new Date().toISOString(),
   };
   rewards.push(newReward);
   saveToStorage(STORAGE_KEYS.rewards, rewards);
   return newReward;
+}
+
+export function getRewardsForCurrentUser(): Reward[] {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) return [];
+  return getRewards().filter(r => r.userId === currentUserId);
 }
 
 // Reward Categories

@@ -6,8 +6,8 @@ import { XPBar } from "@/components/XPBar";
 import { RequestCard } from "@/components/RequestCard";
 import { Button } from "@/components/ui/Button";
 import {
-  getUserById,
-  getRequests,
+  getCurrentUser,
+  getRequestsForCurrentUser,
   deleteRequest,
   initializeDefaultUser,
   initializeDefaultRewardCategories,
@@ -26,12 +26,12 @@ export default function Requests() {
   useEffect(() => {
     try {
       // Initialize data synchronously
-      const userData = initializeDefaultUser();
+      const userData = getCurrentUser();
       initializeDefaultRewardCategories();
 
       // Use functional state updates to avoid cascading renders
       setUser(() => userData);
-      setRequests(() => getRequests());
+      setRequests(() => userData ? getRequestsForCurrentUser() : []);
     } catch (error) {
       console.error('Error loading requests page:', error);
     } finally {
@@ -44,11 +44,11 @@ export default function Requests() {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         try {
-          const updatedUser = getUserById(1);
+          const updatedUser = getCurrentUser();
           if (updatedUser) {
             setUser(updatedUser);
           }
-          const updatedRequests = getRequests();
+          const updatedRequests = getRequestsForCurrentUser();
           setRequests(updatedRequests);
         } catch (error) {
           console.error('Error refreshing data:', error);
@@ -60,7 +60,7 @@ export default function Requests() {
       const customEvent = event as CustomEvent;
       if (customEvent.detail?.type === 'user') {
         try {
-          const updatedUser = getUserById(1);
+          const updatedUser = getCurrentUser();
           if (updatedUser) {
             setUser(updatedUser);
           }
@@ -69,7 +69,7 @@ export default function Requests() {
         }
       } else if (customEvent.detail?.type === 'request') {
         try {
-          const updatedRequests = getRequests();
+          const updatedRequests = getRequestsForCurrentUser();
           setRequests(updatedRequests);
         } catch (error) {
           console.error('Error updating request data:', error);
@@ -89,7 +89,7 @@ export default function Requests() {
     if (confirm("Are you sure you want to delete this request? All associated tasks will be deleted.")) {
       try {
         deleteRequest(requestId);
-        const updatedRequests = getRequests();
+        const updatedRequests = getRequestsForCurrentUser();
         setRequests(updatedRequests);
         // Dispatch event to notify other components
         window.dispatchEvent(new CustomEvent('dataUpdated', {
