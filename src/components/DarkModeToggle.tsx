@@ -12,9 +12,9 @@ export function DarkModeToggle() {
       aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDarkMode ? (
-        <span className="text-yellow-500">☀️</span>
-      ) : (
         <span className="text-gray-700 dark:text-gray-300">🌙</span>
+      ) : (
+        <span className="text-yellow-500">☀️</span>
       )}
     </button>
   );
