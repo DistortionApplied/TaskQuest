@@ -751,3 +751,34 @@ export function getTotalXpRequiredForLevel(targetLevel: number): number {
 
   return totalXp;
 }
+
+export function getLevelTitle(level: number): string {
+  if (level >= 1 && level <= 4) return "Beginner";
+  if (level >= 5 && level <= 9) return "New Adventurer";
+  if (level >= 10 && level <= 14) return "Recruit";
+  if (level >= 15 && level <= 19) return "Soldier";
+  if (level >= 20 && level <= 24) return "Sergeant";
+  if (level >= 25 && level <= 29) return "Captain";
+  if (level >= 30 && level <= 34) return "Lieutenant";
+  if (level >= 35 && level <= 39) return "Lieutenant Commander";
+  if (level >= 40 && level <= 44) return "Commander";
+  if (level >= 45 && level <= 49) return "Lieutenant Colonel";
+  if (level >= 50 && level <= 55) return "Colonel";
+  if (level >= 56 && level <= 60) return "Vice Admiral";
+  if (level >= 61 && level <= 64) return "Admiral";
+  if (level >= 65 && level <= 69) return "General";
+  if (level >= 70 && level <= 74) return "1 Star General";
+  if (level >= 75 && level <= 79) return "2 Star General";
+  if (level >= 80 && level <= 84) return "3 Star General";
+  if (level >= 85 && level <= 89) return "4 Star General";
+  if (level >= 90 && level <= 94) return "Chief of Staff";
+  if (level >= 95 && level <= 99) return "SecDef";
+  if (level >= 100 && level <= 104) return "Commander-in-chief";
+  if (level >= 105 && level <= 109) return "Ninja";
+  if (level >= 110 && level <= 114) return "Ninja Assassin";
+  if (level >= 115 && level <= 119) return "Space Ninja";
+  if (level >= 120) return "God Tier";
+
+  // Fallback for any unexpected cases
+  return "Legendary Adventurer";
+}

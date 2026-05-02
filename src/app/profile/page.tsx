@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { XPBar } from "@/components/XPBar";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
-import { getCurrentUser, getRequestsForCurrentUser, getUsers, switchToUser, deleteUser, deleteCurrentProfile, getXpForNextLevel, setCurrentUserId } from "@/lib/clientData";
+import { getCurrentUser, getRequestsForCurrentUser, getUsers, switchToUser, deleteUser, deleteCurrentProfile, getXpForNextLevel, getLevelTitle, setCurrentUserId } from "@/lib/clientData";
 
 interface User {
   id: number;
@@ -217,7 +217,7 @@ export default function Profile() {
             {user.name.charAt(0).toUpperCase()}
           </div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{user.name}</h2>
-          <p className="text-gray-600 dark:text-gray-400">Level {user.level} Adventurer</p>
+          <p className="text-gray-600 dark:text-gray-400">Level {user.level} {getLevelTitle(user.level)}</p>
         </div>
       </div>
 

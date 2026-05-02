@@ -1,111 +1,138 @@
-# Active Context: Next.js Starter Template
+# Active Context: TaskQuest - Gamified Task Management App
 
 ## Current State
 
-**Template Status**: ✅ Ready for development
+**App Status**: ✅ Fully Functional Production App
 
-The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. It's ready for AI-assisted expansion to build any type of application.
+TaskQuest is a complete gamified task management mobile app built with Next.js 16, TypeScript, and Tailwind CSS 4. Features multi-user profiles, progressive XP system, comprehensive reward categories, and mobile-first design. All data stored client-side in localStorage (no external APIs).
 
-## Recently Completed
+## Recently Completed Features
 
+### Core App Features
 - [x] Base Next.js 16 setup with App Router
 - [x] TypeScript configuration with strict mode
-- [x] Tailwind CSS 4 integration
+- [x] Tailwind CSS 4 integration with dark mode
 - [x] ESLint configuration
-- [x] Memory bank documentation
-- [x] Recipe system for common features
-- [x] File-based data storage using JSON files
-- [x] Gamified task management mobile app with XP system, levels, and rewards
-- [x] Added Chores reward category with housework (indoors/outdoors) and errands subcategories
-- [x] Verified app uses NO APIs - all data stored client-side in localStorage
-- [x] Added Music subcategory to Entertainment with Live, Playlist, and Other subcategories
-- [x] Added new Work category with Custom subcategory
-- [x] Fixed mergeRewardCategories to do deep recursive merge so existing localStorage users receive new subcategories (Music, Work) on next load
-- [x] Added "Clear All Data" Danger Zone section to profile page (localhost:3000/profile)
-- [x] Fixed dark mode toggle functionality by adding Tailwind CSS 4 @custom-variant dark configuration and correcting swapped sun/moon icons
-- [x] Updated XP progression system: Level 1-2 requires 100 XP, each subsequent level increases by 20 XP (Level 2-3: 120 XP, Level 3-4: 140 XP, etc.)
-- [x] Removed sample request cards that were automatically created at app startup
-- [x] Created title screen for home page (/) with app introduction and call-to-action to start quest
-- [x] Moved requests functionality to new /requests page
-- [x] Updated navigation and redirects to point to correct pages
+- [x] Mobile-responsive design with bottom navigation
 
-## Current Structure
+### Gamification System
+- [x] Progressive XP system (100 XP base + 20 XP per level increase)
+- [x] 23-tier level title progression (Beginner → God Tier)
+- [x] Task completion with XP rewards
+- [x] Level-based achievements and progression
 
-| File/Directory | Purpose | Status |
-|----------------|---------|--------|
-| `src/app/page.tsx` | Home page | ✅ Ready |
-| `src/app/layout.tsx` | Root layout | ✅ Ready |
-| `src/app/globals.css` | Global styles | ✅ Ready |
-| `.kilocode/` | AI context & recipes | ✅ Ready |
+### User Management
+- [x] Multi-user profile system with username creation
+- [x] Profile selection and switching
+- [x] Profile management (delete, switch, logout)
+- [x] User-specific data isolation
+
+### Task & Reward System
+- [x] Request creation with customizable tasks
+- [x] Comprehensive reward categories:
+  - Smoke: Cigarette, Weed
+  - Drink: Hot/Cold beverages (Coffee, Beer, Gin & Tonic, etc.)
+  - Entertainment: Computer time, Music (Live/Playlist/Other)
+  - Chores: Housework (Indoors/Outdoors), Errands
+  - Work: Custom work tasks
+  - **Food**: Home Cooking, Dine out, Order in, Other (with Breakfast/Lunch/Dinner/Snack/Other)
+- [x] Task completion tracking and progress bars
+
+### UI/UX Features
+- [x] Enhanced title screen with branding and feature highlights
+- [x] Profile selector with welcome screens
+- [x] Dark/light theme support
+- [x] Mobile-first responsive design
+- [x] Clean, intuitive navigation
+
+### Technical Features
+- [x] Client-side data persistence (localStorage)
+- [x] SSR-safe hydration handling
+- [x] Error boundaries and validation
+- [x] Performance optimized builds
+
+## Current App Structure
+
+| Route | Component | Purpose |
+|-------|-----------|---------|
+| `/` | Home (Title Screen) | App introduction and profile selection |
+| `/requests` | Requests Page | Task management dashboard |
+| `/add` | Add Request | Create new requests and tasks |
+| `/profile` | Profile Page | User stats, settings, profile management |
+| `/request/[id]` | Request Detail | Individual task completion |
+
+### Key Components
+- `ProfileSelector`: Multi-user profile management
+- `XPBar`: Level progression visualization
+- `RequestCard`: Task request display
+- `TaskItem`: Individual task completion
+- `MobileLayout`: App navigation structure
 
 ## Current Focus
 
-The app is a working gamified task management mobile app with no external APIs - all data is stored client-side using localStorage. Future changes must maintain this API-free architecture.
+TaskQuest is a fully functional, production-ready gamified task management app. The focus is on:
+- Maintaining mobile-first user experience
+- Adding requested features while preserving core functionality
+- Ensuring all data remains client-side (localStorage only)
+- Continuous improvement of gamification elements
 
-Next steps:
-1. Add requested features while preserving API-free design
-2. Ensure all new functionality uses localStorage for data persistence
-3. Maintain mobile-first responsive design
+## Technical Architecture
 
-## Quick Start Guide
+### Data Storage
+- **Client-side only**: All data stored in browser localStorage
+- **User isolation**: Each profile has separate data stores
+- **No external APIs**: Completely offline-capable
 
-### To add a new page:
+### Tech Stack
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4
+- **Package Manager**: Bun
+- **Build Tool**: Turbopack
 
-Create a file at `src/app/[route]/page.tsx`:
-```tsx
-export default function NewPage() {
-  return <div>New page content</div>;
-}
-```
+### Key Functions
+- `getCurrentUser()`: Current profile management
+- `getXpForNextLevel()`: XP progression calculation
+- `getLevelTitle()`: Dynamic rank titles
+- `getRequestsForCurrentUser()`: User-specific data filtering
 
-### To add components:
+## Quick Development Guide
 
-Create `src/components/` directory and add components:
-```tsx
-// src/components/ui/Button.tsx
-export function Button({ children }: { children: React.ReactNode }) {
-  return <button className="px-4 py-2 bg-blue-600 text-white rounded">{children}</button>;
-}
-```
+### Adding New Features
+1. Update data models in `src/lib/clientData.ts`
+2. Create/modify components in `src/components/`
+3. Update pages in `src/app/` routes
+4. Test with `bun dev` and build with `bun run build`
 
-### To add a database:
+### Data Persistence
+All user data is automatically saved to localStorage. New features should use existing patterns for user-specific data storage.
 
-Follow `.kilocode/recipes/add-database.md`
-
-### To add API routes:
-
-Create `src/app/api/[route]/route.ts`:
-```tsx
-import { NextResponse } from "next/server";
-
-export async function GET() {
-  return NextResponse.json({ message: "Hello" });
-}
-```
-
-## Available Recipes
-
-| Recipe | File | Use Case |
-|--------|------|----------|
-| Add Database | `.kilocode/recipes/add-database.md` | Data persistence with Drizzle + SQLite |
-
-## Pending Improvements
-
-- [ ] Add more recipes (auth, email, etc.)
-- [ ] Add example components
-- [ ] Add testing setup recipe
+### UI Components
+Follow established patterns in `src/components/ui/` for consistent styling and behavior.
 
 ## Session History
 
-| Date | Changes |
-|------|---------|
-| Initial | Template created with base setup |
-| 2026-04-30 | Built gamified task management mobile app with database, XP system, and mobile UI |
-| 2026-04-30 | Converted from database to file-based storage using JSON files |
-| 2026-05-01 | Added Music subcategory to Entertainment and new Work category |
-| 2026-05-01 | Fixed deep merge of reward categories so returning users get new nested subcategories |
-| 2026-05-01 | Fixed dark mode toggle functionality by adding Tailwind CSS 4 @custom-variant dark configuration and correcting swapped sun/moon icons |
-| 2026-05-01 | Updated XP progression system: Level 1-2 requires 100 XP, each subsequent level increases by 20 XP |
-| 2026-05-01 | Removed sample request cards that were automatically created at app startup |
-| 2026-05-01 | Created title screen for home page with app introduction and moved requests to /requests page |
-| 2026-05-01 | Fixed requests page 404 issue and ensured app opens to title screen by default |
+| Date | Major Changes |
+|------|---------------|
+| Initial | Next.js 16 starter template created |
+| 2026-04-30 | Core gamified task management app built |
+| 2026-04-30 | Converted to client-side localStorage storage |
+| 2026-05-01 | Added Music and Work reward categories |
+| 2026-05-01 | Fixed dark mode and XP progression |
+| 2026-05-01 | Created title screen and restructured navigation |
+| 2026-05-01 | Added profile selector with branding |
+| 2026-05-01 | Implemented multi-user profile system |
+| 2026-05-01 | Added delete current profile functionality |
+| 2026-05-01 | Added Food reward category with meal types |
+| 2026-05-01 | Extended level titles to 23 tiers (God Tier) |
+
+## Deployment Status
+
+✅ **Latest version deployed** - All recent features live
+- Multi-user profiles with switching
+- Extended level progression (120+ levels)
+- Complete Food reward category
+- Enhanced profile selector
+- Mobile-optimized UI
+
+The app is production-ready with comprehensive gamification, user management, and task tracking features.
