@@ -9,6 +9,10 @@ interface TaskItemProps {
   xpValue: number;
   isCompleted: boolean;
   onToggle: (id: number) => void;
+  onMoveUp?: (id: number) => void;
+  onMoveDown?: (id: number) => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }
 
 export function TaskItem({
@@ -18,6 +22,10 @@ export function TaskItem({
   xpValue,
   isCompleted,
   onToggle,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp = true,
+  canMoveDown = true,
 }: TaskItemProps) {
   const [isChecked, setIsChecked] = useState(isCompleted);
 
@@ -52,6 +60,34 @@ export function TaskItem({
           </p>
         )}
       </div>
+      {(onMoveUp || onMoveDown) && (
+        <div className="flex flex-col gap-1">
+          {onMoveUp && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveUp(id);
+              }}
+              disabled={!canMoveUp}
+              className="w-6 h-6 bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 rounded flex items-center justify-center text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ▲
+            </button>
+          )}
+          {onMoveDown && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveDown(id);
+              }}
+              disabled={!canMoveDown}
+              className="w-6 h-6 bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 rounded flex items-center justify-center text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ▼
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

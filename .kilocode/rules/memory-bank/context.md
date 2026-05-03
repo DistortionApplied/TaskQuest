@@ -44,6 +44,8 @@ TaskQuest is a complete gamified task management mobile app built with Next.js 1
 - [x] Dark/light theme support
 - [x] Mobile-first responsive design
 - [x] Clean, intuitive navigation
+- [x] - [x] Completion timestamps in UTC (mm/dd/yyyy h:mm a format)
+- [x] Rearrangeable tasks with drag-and-drop, new tasks added to top
 
 ### Technical Features
 - [x] Client-side data persistence (localStorage)
@@ -125,14 +127,8 @@ Follow established patterns in `src/components/ui/` for consistent styling and b
 | 2026-05-01 | Added delete current profile functionality |
 | 2026-05-01 | Added Food reward category with meal types |
 | 2026-05-01 | Extended level titles to 23 tiers (God Tier) |
-
-## Deployment Status
-
-✅ **Latest version deployed** - All recent features live
-- Multi-user profiles with switching
-- Extended level progression (120+ levels)
-- Complete Food reward category
-- Enhanced profile selector
-- Mobile-optimized UI
-
-The app is production-ready with comprehensive gamification, user management, and task tracking features.
+| 2026-05-03 | Changed timestamp format to mm/dd/yyyy
+| 2026-05-03 | Added Water to Cold Drinks reward category
+| 2026-05-03 | Added Other option to Hot and Cold Drinks subcategories
+| 2026-05-03 | Added Laundry to Indoor Chores
+| 2026-05-03 | Made tasks rearrangeable with drag-and-drop, new tasks added to top

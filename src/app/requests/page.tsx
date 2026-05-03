@@ -178,6 +178,7 @@ export default function Requests() {
                 isCompleted={Boolean(request.isCompleted)}
                 completedTasks={request.completedTasksCount}
                 totalTasks={request.requiredTasksCount}
+                completedAt={request.completedAt}
                 onDelete={handleDeleteRequest}
               />
             ))}
@@ -212,6 +213,7 @@ export default function Requests() {
                   isCompleted={Boolean(request.isCompleted)}
                   completedTasks={request.completedTasksCount}
                   totalTasks={request.requiredTasksCount}
+                  completedAt={request.completedAt}
                   onDelete={handleDeleteRequest}
                 />
               ))}

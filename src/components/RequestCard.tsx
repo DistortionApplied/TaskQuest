@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/Card";
 import { useRouter } from "next/navigation";
-import { findRewardItem } from "@/lib/clientData";
+import { findRewardItem, formatTimestampToEST } from "@/lib/clientData";
 
 interface RequestCardProps {
   id: number;
@@ -10,6 +10,7 @@ interface RequestCardProps {
   completedTasks: number;
   totalTasks: number;
   isCompleted: boolean;
+  completedAt?: string;
   onDelete?: (id: number) => void;
 }
 
@@ -21,6 +22,7 @@ export function RequestCard({
   completedTasks,
   totalTasks,
   isCompleted,
+  completedAt,
   onDelete,
 }: RequestCardProps) {
   const router = useRouter();
@@ -61,13 +63,18 @@ export function RequestCard({
         <div className="text-2xl">{getItemIcon(itemType)}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{itemName}</h3>
-            {isCompleted && (
-              <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
-                Completed
-              </span>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{itemName}</h3>
+              {isCompleted && (
+                <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
+                  Completed
+                </span>
+              )}
+            </div>
+            {isCompleted && completedAt && (
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                Completed: {formatTimestampToEST(completedAt)}
+              </div>
             )}
-          </div>
           {description && (
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">{description}</p>
           )}

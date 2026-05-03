@@ -39,7 +39,7 @@ export default function AddRequest() {
       description: "",
       xpValue: 10,
     };
-    setTasks([...tasks, newTask]);
+    setTasks([newTask, ...tasks]);
   };
 
   const updateTask = (id: number, field: keyof Task, value: string | number) => {

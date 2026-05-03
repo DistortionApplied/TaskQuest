@@ -118,7 +118,8 @@ const DEFAULT_REWARD_CATEGORIES: RewardCategory[] = [
         icon: '☕',
         items: [
           { id: 'coffee', name: 'Coffee', icon: '☕' },
-          { id: 'tea', name: 'Tea', icon: '🍵' }
+          { id: 'tea', name: 'Tea', icon: '🍵' },
+          { id: 'hot_other', name: 'Other', icon: '🔥' }
         ]
       },
       {
@@ -129,7 +130,9 @@ const DEFAULT_REWARD_CATEGORIES: RewardCategory[] = [
           { id: 'beer', name: 'Beer', icon: '🍺' },
           { id: 'ginger_ale', name: 'Ginger Ale', icon: '🥤' },
           { id: 'gin_and_tonic', name: 'Gin and Tonic', icon: '🍸' },
-          { id: 'iced_tea', name: 'Iced Tea', icon: '🧊' }
+          { id: 'iced_tea', name: 'Iced Tea', icon: '❄️' },
+          { id: 'water', name: 'Water', icon: '💧' },
+          { id: 'cold_other', name: 'Other', icon: '🧊' }
         ]
       }
     ]
@@ -199,6 +202,7 @@ const DEFAULT_REWARD_CATEGORIES: RewardCategory[] = [
               { id: 'bathroom', name: 'Bathroom', icon: '🛁' },
               { id: 'bedroom', name: 'Bedroom', icon: '🛏️' },
               { id: 'dog_room', name: 'Dog Room', icon: '🐕' },
+              { id: 'laundry', name: 'Laundry', icon: '👕' },
               { id: 'indoors_custom', name: 'Custom', icon: '✨' }
             ]
           },
@@ -529,7 +533,7 @@ export function createTask(task: Omit<Task, 'id' | 'createdAt'>): Task {
     id: newId,
     createdAt: new Date().toISOString(),
   };
-  tasks.push(newTask);
+  tasks.unshift(newTask); // Add to beginning
   saveToStorage(STORAGE_KEYS.tasks, tasks);
   return newTask;
 }
@@ -541,6 +545,17 @@ export function updateTask(task: Task): void {
     tasks[index] = task;
     saveToStorage(STORAGE_KEYS.tasks, tasks);
   }
+}
+
+export function reorderTasksForRequest(requestId: number, taskIds: number[]): void {
+  const allTasks = getTasks();
+  const requestTasks = allTasks.filter(t => t.requestId === requestId).sort((a, b) => {
+    const aIndex = taskIds.indexOf(a.id);
+    const bIndex = taskIds.indexOf(b.id);
+    return aIndex - bIndex;
+  });
+  const otherTasks = allTasks.filter(t => t.requestId !== requestId);
+  saveToStorage(STORAGE_KEYS.tasks, [...otherTasks, ...requestTasks]);
 }
 
 // Rewards
@@ -699,6 +714,23 @@ export function findRewardItem(id: string): RewardItem | null {
   }
 
   return searchCategories(categories);
+}
+
+// Helper function to format timestamp to Eastern Time dd/mm/yyyy h:mm a
+export function formatTimestampToEST(isoString: string): string {
+  const date = new Date(isoString);
+  // Convert to Eastern Time (UTC-4 for EDT in May)
+  const estDate = new Date(date.getTime());
+  const day = estDate.getDate().toString().padStart(2, '0');
+  const month = (estDate.getMonth() + 1).toString().padStart(2, '0');
+  const year = estDate.getFullYear();
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  };
+  const timeString = estDate.toLocaleString('en-US', timeOptions);
+  return `${month}/${day}/${year} ${timeString}`;
 }
 
 // XP calculation functions
