@@ -62,7 +62,7 @@ export function RequestCard({
       <div className="flex items-start gap-3 pr-10">
         <div className="text-2xl">{getItemIcon(itemType)}</div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{itemName}</h3>
               {isCompleted && (
                 <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">

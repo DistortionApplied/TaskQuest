@@ -11,6 +11,7 @@ interface Task {
   title: string;
   description: string;
   xpValue: number;
+  customizable?: boolean;
 }
 
 export default function AddRequest() {
@@ -18,7 +19,7 @@ export default function AddRequest() {
   const [selectedItem, setSelectedItem] = useState<RewardItem | null>(null);
   const [description, setDescription] = useState("");
   const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, title: "", description: "", xpValue: 10 },
+    { id: 1, title: "", description: "", xpValue: 10, customizable: true },
   ]);
   const [categories, setCategories] = useState<RewardCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<RewardCategory | null>(null);
@@ -38,6 +39,7 @@ export default function AddRequest() {
       title: "",
       description: "",
       xpValue: 10,
+      customizable: true,
     };
     setTasks([newTask, ...tasks]);
   };
@@ -49,7 +51,9 @@ export default function AddRequest() {
   };
 
   const removeTask = (id: number) => {
-    if (tasks.length > 1) {
+    const task = tasks.find(t => t.id === id);
+    // Only remove if it's customizable and not the last task
+    if (task?.customizable && tasks.length > 1) {
       setTasks(tasks.filter(task => task.id !== id));
     }
   };
@@ -74,6 +78,18 @@ export default function AddRequest() {
 
   const handleItemSelect = (item: RewardItem) => {
     setSelectedItem(item);
+    if (item.defaultTasks) {
+      const defaultTasks: Task[] = item.defaultTasks.map((dt, index) => ({
+        id: Date.now() + index,
+        title: dt.title,
+        description: dt.description || '',
+        xpValue: dt.xpValue,
+        customizable: !dt.title.includes('Health'),
+      }));
+      setTasks(defaultTasks);
+    } else {
+      setTasks([{ id: 1, title: "", description: "", xpValue: 10, customizable: true }]);
+    }
   };
 
   const renderRewardSelection = () => {
@@ -294,7 +310,7 @@ export default function AddRequest() {
               <div key={task.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
                 <div className="flex justify-between items-start mb-3">
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Task {index + 1}</span>
-                  {tasks.length > 1 && (
+                  {tasks.length > 1 && task.customizable && (
                     <button
                       onClick={() => removeTask(task.id)}
                       className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm"
@@ -309,12 +325,14 @@ export default function AddRequest() {
                     placeholder="Task title"
                     value={task.title}
                     onChange={(value) => updateTask(task.id, "title", value)}
+                    disabled={!task.customizable}
                   />
                   <Textarea
                     placeholder="Task description (optional)"
                     value={task.description}
                     onChange={(value) => updateTask(task.id, "description", value)}
                     rows={2}
+                    disabled={!task.customizable}
                   />
                   <div className="flex items-center gap-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">XP Value:</label>
@@ -325,6 +343,7 @@ export default function AddRequest() {
                       value={task.xpValue.toString()}
                       onChange={(value) => updateTask(task.id, "xpValue", parseInt(value) || 0)}
                       className="w-20"
+                      disabled={!task.customizable}
                     />
                   </div>
                 </div>

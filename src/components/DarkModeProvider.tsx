@@ -19,17 +19,18 @@ export function DarkModeProvider({ children }: { children: ReactNode }) {
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const shouldBeDark = savedTheme === "dark" || (!savedTheme && prefersDark);
     
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsDarkMode(shouldBeDark);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-
     // Apply the theme class to the document
     if (shouldBeDark) {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
+
+    // Set state in a microtask to avoid direct setState in effect
+    queueMicrotask(() => {
+      setIsDarkMode(shouldBeDark);
+      setMounted(true);
+    });
   }, []);
 
   const toggleDarkMode = () => {

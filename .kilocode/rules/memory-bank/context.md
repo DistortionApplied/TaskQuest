@@ -31,7 +31,7 @@ TaskQuest is a complete gamified task management mobile app built with Next.js 1
 - [x] Request creation with customizable tasks
 - [x] Comprehensive reward categories:
   - Smoke: Cigarette, Weed
-  - Drink: Hot/Cold beverages (Coffee, Beer, Gin & Tonic, etc.)
+  - Drink: Hot/Cold beverages (Coffee, Beer, Gin & Tonic, Water, etc.)
   - Entertainment: Computer time, Music (Live/Playlist/Other)
   - Chores: Housework (Indoors/Outdoors), Errands
   - Work: Custom work tasks
@@ -44,8 +44,10 @@ TaskQuest is a complete gamified task management mobile app built with Next.js 1
 - [x] Dark/light theme support
 - [x] Mobile-first responsive design
 - [x] Clean, intuitive navigation
-- [x] - [x] Completion timestamps in UTC (mm/dd/yyyy h:mm a format)
+- [x] Completion timestamps in UTC (mm/dd/yyyy h:mm a format)
 - [x] Rearrangeable tasks with drag-and-drop, new tasks added to top
+- [x] XP deduction when unchecking completed tasks
+- [x] Default tasks for reward items with health bonuses/penalties (non-customizable)
 
 ### Technical Features
 - [x] Client-side data persistence (localStorage)
@@ -128,7 +130,20 @@ Follow established patterns in `src/components/ui/` for consistent styling and b
 | 2026-05-01 | Added Food reward category with meal types |
 | 2026-05-01 | Extended level titles to 23 tiers (God Tier) |
 | 2026-05-03 | Changed timestamp format to mm/dd/yyyy
+| 2026-05-03 | Added XP deduction for unchecking tasks
+| 2026-05-03 | Implemented default tasks for rewards with health bonuses/penalties (non-customizable)
 | 2026-05-03 | Added Water to Cold Drinks reward category
 | 2026-05-03 | Added Other option to Hot and Cold Drinks subcategories
 | 2026-05-03 | Added Laundry to Indoor Chores
 | 2026-05-03 | Made tasks rearrangeable with drag-and-drop, new tasks added to top
+
+## Deployment Status
+
+✅ **Latest version deployed** - All recent features live
+- Multi-user profiles with switching
+- Extended level progression (120+ levels)
+- Complete Food reward category
+- Enhanced profile selector
+- Mobile-optimized UI
+
+The app is production-ready with comprehensive gamification, user management, and task tracking features.

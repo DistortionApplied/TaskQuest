@@ -28,24 +28,26 @@ export default function Profile() {
     try {
       // Load data for current user
       const userData = getCurrentUser();
-      if (userData) {
-        setUser(userData);
-      }
       const requestsData = getRequestsForCurrentUser();
-      setRequests(requestsData);
+      const usersData = getUsers();
 
-      // Load all users for profile switching
-      setAllUsers(getUsers());
+      // Set state in a microtask to avoid direct setState in effect
+      queueMicrotask(() => {
+        if (userData) {
+          setUser(userData);
+        }
+        setRequests(requestsData);
+        setAllUsers(usersData);
+        setLoading(false);
+      });
     } catch (error) {
       console.error('Error loading profile data:', error);
+      queueMicrotask(() => setLoading(false));
     }
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProfileData();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(false);
   }, []);
 
   // Refresh data when component becomes visible (user navigates back to profile)

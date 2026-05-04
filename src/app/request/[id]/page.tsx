@@ -53,6 +53,31 @@ export default function RequestDetail() {
     setLoading(false);
   }, [requestId]);
 
+  const isHealthTask = (taskTitle: string) => {
+    return taskTitle.includes('Health');
+  };
+
+  const awardXp = (xpValue: number) => {
+    const user = getUserById(1);
+    if (!user) return;
+    
+    const currentXP = user.xp || 0;
+    const newXP = currentXP + xpValue;
+    const newLevel = calculateLevelFromXp(newXP);
+
+    console.log(`Awarding XP: ${currentXP} + ${xpValue} = ${newXP}, Level: ${newLevel}`);
+
+    updateUser({
+      ...user,
+      xp: newXP,
+      level: newLevel,
+    });
+
+    window.dispatchEvent(new CustomEvent('dataUpdated', {
+      detail: { type: 'user', userId: user.id }
+    }));
+  };
+
   const handleTaskToggle = (taskId: number) => {
     console.log('handleTaskToggle called with taskId:', taskId);
     const task = tasks.find(t => t.id === taskId);
@@ -62,8 +87,21 @@ export default function RequestDetail() {
       return;
     }
 
+    // Don't allow toggling health tasks manually
+    if (isHealthTask(task.title)) {
+      console.log('Health tasks cannot be toggled manually');
+      return;
+    }
+
     const newIsCompleted = task.isCompleted === 0 ? 1 : 0;
     console.log('Toggling task completion:', task.isCompleted, '->', newIsCompleted);
+
+    updateTaskAndCheckCompletion(taskId, newIsCompleted);
+  };
+
+  const updateTaskAndCheckCompletion = (taskId: number, newIsCompleted: number) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
 
     // Update task
     const updatedTask = {
@@ -73,70 +111,58 @@ export default function RequestDetail() {
     };
     updateTask(updatedTask as any);
 
-    // Update request completion count
-    const allTasks = getTasksByRequestId(parseInt(requestId!));
-    const completedCount = allTasks.filter(t => t.isCompleted === 1).length;
-
-    const isNowCompleted = completedCount === allTasks.length;
-    const updatedRequest = {
-      ...request,
-      completedTasksCount: completedCount,
-      isCompleted: isNowCompleted ? 1 : 0,
-      completedAt: isNowCompleted ? (request.isCompleted === false ? new Date().toISOString() : request.completedAt) : undefined,
-    };
-    updateRequest(updatedRequest as any);
-
     // Award or deduct XP based on task completion
     if (newIsCompleted === 1 && task.isCompleted === 0) {
-      // Award XP for completing task
       console.log('Awarding XP for task completion');
-      const user = getUserById(1);
-      console.log('Current user:', user);
-      if (user) {
-        const currentXP = user.xp || 0;
-        const taskXP = task.xpValue || 0;
-        const newXP = currentXP + taskXP;
-        const newLevel = calculateLevelFromXp(newXP);
-
-        console.log(`XP: ${currentXP} + ${taskXP} = ${newXP}, Level: ${newLevel}`);
-
-        updateUser({
-          ...user,
-          xp: newXP,
-          level: newLevel,
-        });
-        console.log('User updated with new XP');
-
-        // Dispatch custom event to notify other components of data change
-        window.dispatchEvent(new CustomEvent('dataUpdated', {
-          detail: { type: 'user', userId: user.id }
-        }));
-      }
+      awardXp(task.xpValue || 0);
     } else if (newIsCompleted === 0 && task.isCompleted === 1) {
-      // Deduct XP for uncompleting task
       console.log('Deducting XP for task uncompletion');
-      const user = getUserById(1);
-      console.log('Current user:', user);
-      if (user) {
-        const currentXP = user.xp || 0;
-        const taskXP = task.xpValue || 0;
-        const newXP = Math.max(0, currentXP - taskXP); // Prevent negative XP
-        const newLevel = calculateLevelFromXp(newXP);
+      awardXp(-(task.xpValue || 0));
+    }
 
-        console.log(`XP: ${currentXP} - ${taskXP} = ${newXP}, Level: ${newLevel}`);
+    // Check if all non-health tasks are completed
+    const allTasks = getTasksByRequestId(parseInt(requestId!));
+    const nonHealthTasks = allTasks.filter(t => !isHealthTask(t.title));
+    const completedNonHealthTasks = nonHealthTasks.filter(t => t.isCompleted === 1).length;
 
-        updateUser({
-          ...user,
-          xp: newXP,
-          level: newLevel,
-        });
-        console.log('User updated with reduced XP');
+    if (completedNonHealthTasks === nonHealthTasks.length && nonHealthTasks.length > 0) {
+      // All non-health tasks are complete, auto-complete health tasks
+      console.log('All non-health tasks completed, auto-completing health tasks');
+      const healthTasks = allTasks.filter(t => isHealthTask(t.title));
+      
+      for (const healthTask of healthTasks) {
+        if (healthTask.isCompleted === 0) {
+          const updatedHealthTask = {
+            ...healthTask,
+            isCompleted: 1,
+            completedAt: new Date().toISOString(),
+          };
+          updateTask(updatedHealthTask as any);
+          
+          // Award XP for health task
+          awardXp(healthTask.xpValue || 0);
 
-        // Dispatch custom event to notify other components of data change
-        window.dispatchEvent(new CustomEvent('dataUpdated', {
-          detail: { type: 'user', userId: user.id }
-        }));
+          // Update local state
+          setTasks(prevTasks => prevTasks.map(t =>
+            t.id === healthTask.id ? { ...t, isCompleted: 1 } : t
+          ));
+        }
       }
+    }
+
+    // Update request completion count
+    const updatedAllTasks = getTasksByRequestId(parseInt(requestId!));
+    const completedCount = updatedAllTasks.filter(t => t.isCompleted === 1).length;
+    const isNowCompleted = completedCount === updatedAllTasks.length;
+
+    if (request) {
+      const updatedRequest = {
+        ...request,
+        completedTasksCount: completedCount,
+        isCompleted: isNowCompleted ? 1 : 0,
+        completedAt: isNowCompleted ? (request.isCompleted === false ? new Date().toISOString() : request.completedAt) : undefined,
+      };
+      updateRequest(updatedRequest as any);
     }
 
     // Refresh local state
@@ -146,7 +172,7 @@ export default function RequestDetail() {
     setRequest(prevRequest => prevRequest ? {
       ...prevRequest,
       completedTasksCount: completedCount,
-      isCompleted: completedCount === allTasks.length,
+      isCompleted: isNowCompleted,
     } : null);
   };
 
@@ -290,6 +316,7 @@ export default function RequestDetail() {
                 onMoveDown={moveTaskDown}
                 canMoveUp={index > 0}
                 canMoveDown={index < tasks.length - 1}
+                isHealthTask={isHealthTask(task.title)}
               />
             </div>
           ))

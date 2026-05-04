@@ -29,13 +29,17 @@ export default function Requests() {
       const userData = getCurrentUser();
       initializeDefaultRewardCategories();
 
-      // Use functional state updates to avoid cascading renders
-      setUser(() => userData);
-      setRequests(() => userData ? getRequestsForCurrentUser() : []);
+      // Set state in a microtask to avoid direct setState in effect
+      queueMicrotask(() => {
+        if (userData) {
+          setUser(userData);
+          setRequests(getRequestsForCurrentUser());
+        }
+        setLoading(false);
+      });
     } catch (error) {
       console.error('Error loading requests page:', error);
-    } finally {
-      setLoading(false);
+      queueMicrotask(() => setLoading(false));
     }
   }, []);
 

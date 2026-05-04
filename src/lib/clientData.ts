@@ -55,6 +55,7 @@ export interface RewardItem {
   id: string;
   name: string;
   icon: string;
+  defaultTasks?: { title: string; description?: string; xpValue: number }[];
 }
 
 export interface RewardCategory {
@@ -103,8 +104,15 @@ const DEFAULT_REWARD_CATEGORIES: RewardCategory[] = [
     name: 'Smoke',
     icon: '🚬',
     items: [
-      { id: 'cigarette', name: 'Cigarette', icon: '🚬' },
-      { id: 'weed', name: 'Weed', icon: '🌿' }
+      { id: 'cigarette', name: 'Cigarette', icon: '🚬', defaultTasks: [
+        { title: 'Health Penalty', xpValue: -10 },
+        { title: 'Roll hers', xpValue: 10 },
+        { title: 'Roll mine', xpValue: 10 }
+      ] },
+      { id: 'weed', name: 'Weed', icon: '🌿', defaultTasks: [
+        { title: 'Health Bonus', xpValue: 5 },
+        { title: 'Roll Joint', xpValue: 10 }
+      ] }
     ]
   },
   {
@@ -117,9 +125,17 @@ const DEFAULT_REWARD_CATEGORIES: RewardCategory[] = [
         name: 'Hot',
         icon: '☕',
         items: [
-          { id: 'coffee', name: 'Coffee', icon: '☕' },
-          { id: 'tea', name: 'Tea', icon: '🍵' },
-          { id: 'hot_other', name: 'Other', icon: '🔥' }
+          { id: 'coffee', name: 'Coffee', icon: '☕', defaultTasks: [
+            { title: 'Health Bonus', xpValue: 5 },
+            { title: 'Grind Coffee', xpValue: 10 },
+            { title: 'Make Coffee', xpValue: 10 },
+            { title: 'Clean', xpValue: 10 }
+          ] },
+          { id: 'tea', name: 'Tea', icon: '🍵', defaultTasks: [
+            { title: 'Health Bonus', xpValue: 10 },
+            { title: 'Boil water', xpValue: 10 },
+            { title: 'Steep', xpValue: 10 }
+          ] }
         ]
       },
       {
@@ -127,10 +143,22 @@ const DEFAULT_REWARD_CATEGORIES: RewardCategory[] = [
         name: 'Cold',
         icon: '🧊',
         items: [
-          { id: 'beer', name: 'Beer', icon: '🍺' },
-          { id: 'ginger_ale', name: 'Ginger Ale', icon: '🥤' },
-          { id: 'gin_and_tonic', name: 'Gin and Tonic', icon: '🍸' },
-          { id: 'iced_tea', name: 'Iced Tea', icon: '❄️' },
+          { id: 'beer', name: 'Beer', icon: '🍺', defaultTasks: [
+            { title: 'Health Penalty', xpValue: -5 },
+            { title: 'Drink water or tea', xpValue: 10 },
+            { title: 'Eat', xpValue: 10 }
+          ] },
+          { id: 'ginger_ale', name: 'Ginger Ale', icon: '🥤', defaultTasks: [
+            { title: 'Health Penalty', xpValue: -5 }
+          ] },
+          { id: 'gin_and_tonic', name: 'Gin and Tonic', icon: '🍸', defaultTasks: [
+            { title: 'Health Penalty', xpValue: -5 },
+            { title: 'Make hers', xpValue: 10 },
+            { title: 'Make mine', xpValue: 10 }
+          ] },
+          { id: 'iced_tea', name: 'Iced Tea', icon: '🧊', defaultTasks: [
+            { title: 'Health Bonus', xpValue: 10 }
+          ] },
           { id: 'water', name: 'Water', icon: '💧' },
           { id: 'cold_other', name: 'Other', icon: '🧊' }
         ]
@@ -256,48 +284,468 @@ const DEFAULT_REWARD_CATEGORIES: RewardCategory[] = [
         id: 'home_cooking',
         name: 'Home Cooking',
         icon: '🏠',
-        items: [
-          { id: 'home_cooking_breakfast', name: 'Breakfast', icon: '🥐' },
-          { id: 'home_cooking_lunch', name: 'Lunch', icon: '🥪' },
-          { id: 'home_cooking_dinner', name: 'Dinner', icon: '🍽️' },
-          { id: 'home_cooking_snack', name: 'Snack', icon: '🍿' },
-          { id: 'home_cooking_other', name: 'Other', icon: '🍽️' }
+        subcategories: [
+          {
+            id: 'breakfast',
+            name: 'Breakfast',
+            icon: '🥐',
+            items: [
+              { id: 'home_cooking_breakfast', name: 'Breakfast', icon: '🥐', defaultTasks: [
+                { title: 'Health bonus', xpValue: 20 },
+                { title: 'Shop', xpValue: 10 },
+                { title: 'Prep', xpValue: 10 },
+                { title: 'Cook', xpValue: 10 }
+              ] }
+            ]
+          },
+          {
+            id: 'lunch',
+            name: 'Lunch',
+            icon: '🥪',
+            items: [
+              { id: 'home_cooking_lunch', name: 'Lunch', icon: '🥪', defaultTasks: [
+                { title: 'Health bonus', xpValue: 20 },
+                { title: 'Shop', xpValue: 10 },
+                { title: 'Prep', xpValue: 10 },
+                { title: 'Cook', xpValue: 10 }
+              ] }
+            ]
+          },
+          {
+            id: 'dinner',
+            name: 'Dinner',
+            icon: '🍽️',
+            items: [
+              { id: 'home_cooking_dinner', name: 'Dinner', icon: '🍽️', defaultTasks: [
+                { title: 'Health bonus', xpValue: 20 },
+                { title: 'Shop', xpValue: 10 },
+                { title: 'Prep', xpValue: 10 },
+                { title: 'Cook', xpValue: 10 }
+              ] }
+            ]
+          },
+          {
+            id: 'snacks',
+            name: 'Snacks',
+            icon: '🍿',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Snack',
+                icon: '🥕',
+                items: [
+                  { id: 'home_cooking_healthy_snack', name: 'Healthy Snack', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍭',
+                items: [
+                  { id: 'home_cooking_junk_snack', name: 'Junk', icon: '🍭', defaultTasks: [
+                    { title: 'Health Penalty', xpValue: -5 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'other',
+            name: 'Other',
+            icon: '🍽️',
+            items: [
+              { id: 'home_cooking_other', name: 'Other', icon: '🍽️' }
+            ]
+          }
         ]
       },
       {
         id: 'dine_out',
         name: 'Dine out',
         icon: '🍽️',
-        items: [
-          { id: 'dine_out_breakfast', name: 'Breakfast', icon: '🥐' },
-          { id: 'dine_out_lunch', name: 'Lunch', icon: '🥪' },
-          { id: 'dine_out_dinner', name: 'Dinner', icon: '🍽️' },
-          { id: 'dine_out_snack', name: 'Snack', icon: '🍿' },
-          { id: 'dine_out_other', name: 'Other', icon: '🍽️' }
+        subcategories: [
+          {
+            id: 'breakfast',
+            name: 'Breakfast',
+            icon: '🥐',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Meal',
+                icon: '🥕',
+                items: [
+                  { id: 'dine_out_breakfast_healthy', name: 'Healthy Meal', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 25 },
+                    { title: 'Decide What to Have', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍔',
+                items: [
+                  { id: 'dine_out_breakfast_junk', name: 'Junk', icon: '🍔', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 5 },
+                    { title: 'Decide what to have', xpValue: 10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'lunch',
+            name: 'Lunch',
+            icon: '🥪',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Meal',
+                icon: '🥕',
+                items: [
+                  { id: 'dine_out_lunch_healthy', name: 'Healthy Meal', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 25 },
+                    { title: 'Decide What to Have', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍔',
+                items: [
+                  { id: 'dine_out_lunch_junk', name: 'Junk', icon: '🍔', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 5 },
+                    { title: 'Decide what to have', xpValue: 10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'dinner',
+            name: 'Dinner',
+            icon: '🍽️',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Meal',
+                icon: '🥕',
+                items: [
+                  { id: 'dine_out_dinner_healthy', name: 'Healthy Meal', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 25 },
+                    { title: 'Decide What to Have', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍔',
+                items: [
+                  { id: 'dine_out_dinner_junk', name: 'Junk', icon: '🍔', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 5 },
+                    { title: 'Decide what to have', xpValue: 10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'snacks',
+            name: 'Snacks',
+            icon: '🍿',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Snack',
+                icon: '🥕',
+                items: [
+                  { id: 'dine_out_healthy_snack', name: 'Healthy Snack', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍭',
+                items: [
+                  { id: 'dine_out_junk_snack', name: 'Junk', icon: '🍭', defaultTasks: [
+                    { title: 'Health Penalty', xpValue: -10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'other',
+            name: 'Other',
+            icon: '🍽️',
+            items: [
+              { id: 'dine_out_other', name: 'Other', icon: '🍽️' }
+            ]
+          }
         ]
       },
       {
         id: 'order_in',
         name: 'Order in',
         icon: '📦',
-        items: [
-          { id: 'order_in_breakfast', name: 'Breakfast', icon: '🥐' },
-          { id: 'order_in_lunch', name: 'Lunch', icon: '🥪' },
-          { id: 'order_in_dinner', name: 'Dinner', icon: '🍽️' },
-          { id: 'order_in_snack', name: 'Snack', icon: '🍿' },
-          { id: 'order_in_other', name: 'Other', icon: '🍽️' }
+        subcategories: [
+          {
+            id: 'breakfast',
+            name: 'Breakfast',
+            icon: '🥐',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Meal',
+                icon: '🥕',
+                items: [
+                  { id: 'order_in_breakfast_healthy', name: 'Healthy Meal', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 25 },
+                    { title: 'Decide What to Have', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍔',
+                items: [
+                  { id: 'order_in_breakfast_junk', name: 'Junk', icon: '🍔', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 5 },
+                    { title: 'Decide what to have', xpValue: 10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'lunch',
+            name: 'Lunch',
+            icon: '🥪',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Meal',
+                icon: '🥕',
+                items: [
+                  { id: 'order_in_lunch_healthy', name: 'Healthy Meal', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 25 },
+                    { title: 'Decide What to Have', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍔',
+                items: [
+                  { id: 'order_in_lunch_junk', name: 'Junk', icon: '🍔', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 5 },
+                    { title: 'Decide what to have', xpValue: 10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'dinner',
+            name: 'Dinner',
+            icon: '🍽️',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Meal',
+                icon: '🥕',
+                items: [
+                  { id: 'order_in_dinner_healthy', name: 'Healthy Meal', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 25 },
+                    { title: 'Decide What to Have', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍔',
+                items: [
+                  { id: 'order_in_dinner_junk', name: 'Junk', icon: '🍔', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 5 },
+                    { title: 'Decide what to have', xpValue: 10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'snacks',
+            name: 'Snacks',
+            icon: '🍿',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Snack',
+                icon: '🥕',
+                items: [
+                  { id: 'order_in_healthy_snack', name: 'Healthy Snack', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍭',
+                items: [
+                  { id: 'order_in_junk_snack', name: 'Junk', icon: '🍭', defaultTasks: [
+                    { title: 'Health Penalty', xpValue: -10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'other',
+            name: 'Other',
+            icon: '🍽️',
+            items: [
+              { id: 'order_in_other', name: 'Other', icon: '🍽️' }
+            ]
+          }
         ]
       },
       {
         id: 'food_other',
         name: 'Other',
         icon: '🍽️',
-        items: [
-          { id: 'food_other_breakfast', name: 'Breakfast', icon: '🥐' },
-          { id: 'food_other_lunch', name: 'Lunch', icon: '🥪' },
-          { id: 'food_other_dinner', name: 'Dinner', icon: '🍽️' },
-          { id: 'food_other_snack', name: 'Snack', icon: '🍿' },
-          { id: 'food_other_other', name: 'Other', icon: '🍽️' }
+        subcategories: [
+          {
+            id: 'breakfast',
+            name: 'Breakfast',
+            icon: '🥐',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Meal',
+                icon: '🥕',
+                items: [
+                  { id: 'food_other_breakfast_healthy', name: 'Healthy Meal', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 25 },
+                    { title: 'Decide What to Have', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍔',
+                items: [
+                  { id: 'food_other_breakfast_junk', name: 'Junk', icon: '🍔', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 5 },
+                    { title: 'Decide what to have', xpValue: 10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'lunch',
+            name: 'Lunch',
+            icon: '🥪',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Meal',
+                icon: '🥕',
+                items: [
+                  { id: 'food_other_lunch_healthy', name: 'Healthy Meal', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 25 },
+                    { title: 'Decide What to Have', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍔',
+                items: [
+                  { id: 'food_other_lunch_junk', name: 'Junk', icon: '🍔', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 5 },
+                    { title: 'Decide what to have', xpValue: 10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'dinner',
+            name: 'Dinner',
+            icon: '🍽️',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Meal',
+                icon: '🥕',
+                items: [
+                  { id: 'food_other_dinner_healthy', name: 'Healthy Meal', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 25 },
+                    { title: 'Decide What to Have', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍔',
+                items: [
+                  { id: 'food_other_dinner_junk', name: 'Junk', icon: '🍔', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 5 },
+                    { title: 'Decide what to have', xpValue: 10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'snacks',
+            name: 'Snacks',
+            icon: '🍿',
+            subcategories: [
+              {
+                id: 'healthy',
+                name: 'Healthy Snack',
+                icon: '🥕',
+                items: [
+                  { id: 'food_other_healthy_snack', name: 'Healthy Snack', icon: '🥕', defaultTasks: [
+                    { title: 'Health Bonus', xpValue: 10 }
+                  ] }
+                ]
+              },
+              {
+                id: 'junk',
+                name: 'Junk',
+                icon: '🍭',
+                items: [
+                  { id: 'food_other_junk_snack', name: 'Junk', icon: '🍭', defaultTasks: [
+                    { title: 'Health Penalty', xpValue: -10 }
+                  ] }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'other',
+            name: 'Other',
+            icon: '🍽️',
+            items: [
+              { id: 'food_other_other', name: 'Other', icon: '🍽️' }
+            ]
+          }
         ]
       }
     ]
@@ -719,7 +1167,7 @@ export function findRewardItem(id: string): RewardItem | null {
 // Helper function to format timestamp to Eastern Time dd/mm/yyyy h:mm a
 export function formatTimestampToEST(isoString: string): string {
   const date = new Date(isoString);
-  // Convert to Eastern Time (UTC-4 for EDT in May)
+  // Display in UTC time
   const estDate = new Date(date.getTime());
   const day = estDate.getDate().toString().padStart(2, '0');
   const month = (estDate.getMonth() + 1).toString().padStart(2, '0');
